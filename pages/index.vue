@@ -1,33 +1,69 @@
 <template>
   <div>
-    <title-bar :title-stack="titleStack" />
-    <hero-bar :has-right-visible="false">
-      Dashboard
-    </hero-bar>
     <section class="section is-main-section">
       <tiles>
         <card-widget
           class="tile is-child"
           type="is-primary"
           icon="account-multiple"
-          :number="512"
-          label="Clients"
+          :number="this.customers.length"
+          label="Müşteri Sayısı"
         />
+        <card-widget
+          class="tile is-child"
+          type="is-success"
+          icon="storefront"
+          :number="this.products.length"
+          label="Ürün Sayısı"
+        />
+        <card-widget
+          class="tile is-child"
+          type="is-success"
+          icon="calendar-account"
+          :number="this.dates.length"
+          label="Aktif Randevu Sayısı"
+        />
+        <card-widget
+          class="tile is-child"
+          type="is-success"
+          icon="charity"
+          :number="this.suppliers.length"
+          label="Tedarikçi Sayısı"
+        />
+      </tiles>
+
+      <tiles>
         <card-widget
           class="tile is-child"
           type="is-info"
           icon="cart-outline"
-          :number="7770"
-          prefix="$"
-          label="Sales"
+          :number="this.totalSell"
+          suffix=" ₺"
+          label="Toplam Satış"
+        />
+        <card-widget
+          class="tile is-child"
+          type="is-danger"
+          icon="cart-minus"
+          :number="this.totalPurchase"
+          suffix=" ₺"
+          label="Toplam Gider"
+        />
+        <card-widget
+          class="tile is-child"
+          type="is-success"
+          icon="currency-usd"
+          :number="this.totalSell - this.totalPurchase"
+          suffix=" ₺"
+          label="Kar"
         />
         <card-widget
           class="tile is-child"
           type="is-success"
           icon="chart-timeline-variant"
-          :number="256"
-          suffix="%"
-          label="Performance"
+          :number="((this.totalSell - this.totalPurchase) * (100 / this.totalPurchase))"
+          suffix=" %"
+          label="Kar Oranı"
         />
       </tiles>
 
@@ -85,12 +121,66 @@ export default {
         chartData: null,
         extraOptions: chartConfig.chartOptionsMain,
       },
+      customers: [],
+      products: [],
+      dates: [],
+      suppliers: [],
+      totalPurchase: 0,
+      totalSell: 0,
     }
   },
-  computed: {
-    titleStack() {
-      return ['Admin', 'Dashboard']
-    },
+  async created() {
+    try {
+      let customers = await this.$services.customer.getCustomer(
+        this.$auth.user.companyID._id
+      )
+
+      let products = await this.$services.product.getAll(
+        this.$auth.user.companyID._id
+      )
+
+      let dates = await this.$services.date.getActive(
+        this.$auth.user.companyID._id
+      )
+
+      let suppliers = await this.$services.supplier.get(
+        this.$auth.user.companyID._id
+      )
+
+      let totalPurchase = await this.$services.purchase.getTotal(
+        this.$auth.user.companyID._id
+      )
+
+      let totalSell = await this.$services.sell.getTotal(
+        this.$auth.user.companyID._id
+      )
+
+      if (customers) {
+        this.customers = customers.data
+      }
+
+      if (products) {
+        this.products = products.data
+      }
+
+      if (dates) {
+        this.dates = dates.data
+      }
+
+      if (suppliers) {
+        this.suppliers = suppliers.data
+      }
+
+      if (totalPurchase) {
+        this.totalPurchase = totalPurchase.data.total
+      }
+
+      if (totalSell) {
+        this.totalSell = totalSell.data.total
+      }
+    } catch (error) {
+      console.log(error)
+    }
   },
   mounted() {
     this.fillChartData()
@@ -126,40 +216,10 @@ export default {
             pointHoverRadius: 4,
             pointHoverBorderWidth: 15,
             pointRadius: 4,
-            data: this.randomChartData(9),
-          },
-          {
-            fill: false,
-            borderColor: chartConfig.chartColors.default.info,
-            borderWidth: 2,
-            borderDash: [],
-            borderDashOffset: 0.0,
-            pointBackgroundColor: chartConfig.chartColors.default.info,
-            pointBorderColor: 'rgba(255,255,255,0)',
-            pointHoverBackgroundColor: chartConfig.chartColors.default.info,
-            pointBorderWidth: 20,
-            pointHoverRadius: 4,
-            pointHoverBorderWidth: 15,
-            pointRadius: 4,
-            data: this.randomChartData(9),
-          },
-          {
-            fill: false,
-            borderColor: chartConfig.chartColors.default.danger,
-            borderWidth: 2,
-            borderDash: [],
-            borderDashOffset: 0.0,
-            pointBackgroundColor: chartConfig.chartColors.default.danger,
-            pointBorderColor: 'rgba(255,255,255,0)',
-            pointHoverBackgroundColor: chartConfig.chartColors.default.danger,
-            pointBorderWidth: 20,
-            pointHoverRadius: 4,
-            pointHoverBorderWidth: 15,
-            pointRadius: 4,
-            data: this.randomChartData(9),
+            data: this.randomChartData(7),
           },
         ],
-        labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09'],
+        labels: ['01', '02', '03', '04', '05', '06', '07'],
       }
     },
   },

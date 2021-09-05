@@ -1,13 +1,13 @@
 <template>
   <div>
     <b-tabs v-model="activeSubTab">
-      <b-tab-item label="Servis Listesi">
+      <b-tab-item label="Satış Faturası Listesi">
         <card-component class="has-table has-mobile-sort-spaced">
-          <job-list-table @refreshJobs="getJobs" :clients="jobs" />
+          <sell-list-table @refreshSells="getSells" :clients="sells" />
         </card-component>
       </b-tab-item>
-      <b-tab-item label="Servis ekle">
-        <add-service @refreshJobs="getJobs" />
+      <b-tab-item label="Satış Faturası Ekle">
+        <add-sell @refreshSells="getSells" />
       </b-tab-item>
     </b-tabs>
   </div>
@@ -18,34 +18,36 @@ import CardComponent from '@/components/CardComponent'
 import ClientsTableSample from '@/components/ClientsTableSample'
 
 import AddService from '~/components/AddService.vue'
-import JobListTable from '~/components/JobListTable.vue'
+import SellListTable from '~/components/SellListTable.vue'
+import AddSell from '~/components/AddSell.vue'
 export default {
   components: {
     ClientsTableSample,
     CardComponent,
     AddService,
-    JobListTable,
+    SellListTable,
+    AddSell,
   },
   data() {
     return {
-      jobs: [],
+      sells: [],
     }
   },
   async created() {
     try {
-      let jobs = await this.$services.job.get(this.$auth.user.companyID._id)
+      let sells = await this.$services.sell.get(this.$auth.user.companyID._id)
 
-      this.jobs = jobs.data
+      this.sells = sells.data
     } catch (error) {
       console.log(error)
     }
   },
   methods: {
-    async getJobs() {
+    async getSells() {
       try {
-        let jobs = await this.$services.job.get(this.$auth.user.companyID._id)
+        let sells = await this.$services.sell.get(this.$auth.user.companyID._id)
 
-        this.jobs = jobs.data
+        this.sells = sells.data
       } catch (error) {
         console.log(error)
       }

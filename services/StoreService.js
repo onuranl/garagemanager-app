@@ -8,4 +8,10 @@ export default ({ $axios }) => ({
   create(data) {
     return $axios.post('/store/create', data)
   },
+  update(id, data) {
+    return $axios.put(`/store/update/${id}`, data)
+  },
+  remove(id) {
+    return $axios.delete(`/store/remove/${id}`)
+  },
 })

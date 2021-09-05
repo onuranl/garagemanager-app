@@ -34,7 +34,7 @@
             <button
               class="button is-small is-danger"
               type="button"
-              @click.prevent="trashModal(props.row)"
+              @click="removeProduct(props.row._id)"
             >
               <b-icon icon="trash-can" size="is-small" />
             </button>
@@ -60,6 +60,21 @@ export default {
       perPage: 10,
       checkedRows: [],
     }
+  },
+  methods: {
+    async removeProduct(id) {
+      try {
+        let remove = await this.$services.product.remove(id)
+
+        if (remove) {
+          this.$buefy.toast.open('Ürün Kaldırıldı !')
+          this.$emit('refreshProduct')
+        }
+      } catch (error) {
+        this.$buefy.toast.open('Bir hata meydana geldi !')
+        console.log(error)
+      }
+    },
   },
 }
 </script>

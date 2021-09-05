@@ -1,13 +1,16 @@
 <template>
   <div>
     <b-tabs v-model="activeSubTab">
-      <b-tab-item label="Depo Listesi">
+      <b-tab-item label="Alış Faturası Listesi">
         <card-component class="has-table has-mobile-sort-spaced">
-          <store-list-table @refreshStores="getStores" :clients="stores" />
+          <purchase-list-table
+            @refreshPurchases="getPurchases"
+            :clients="purchases"
+          />
         </card-component>
       </b-tab-item>
-      <b-tab-item label="Depo Ekle" :disabled="stores.length >= 3">
-        <add-store @refreshStores="getStores" />
+      <b-tab-item label="Alış Faturası ekle">
+        <add-purchase @refreshPurchases="getPurchases" />
       </b-tab-item>
     </b-tabs>
   </div>
@@ -16,41 +19,42 @@
 <script>
 import CardComponent from '@/components/CardComponent'
 import ClientsTableSample from '@/components/ClientsTableSample'
+
 import AddService from '~/components/AddService.vue'
-import StoreListTable from '~/components/StoreListTable.vue'
-import AddStore from '~/components/AddStore.vue'
+import PurchaseListTable from '~/components/PurchaseListTable.vue'
+import AddPurchase from '~/components/AddPurchase.vue'
 export default {
   components: {
     ClientsTableSample,
     CardComponent,
     AddService,
-    StoreListTable,
-    AddStore,
+    PurchaseListTable,
+    AddPurchase,
   },
   data() {
     return {
-      stores: [],
+      purchases: [],
     }
   },
   async created() {
     try {
-      let stores = await this.$services.store.get(this.$auth.user.companyID._id)
+      let purchases = await this.$services.purchase.get(
+        this.$auth.user.companyID._id
+      )
 
-      this.stores = stores.data
+      this.purchases = purchases.data
     } catch (error) {
       console.log(error)
     }
   },
   methods: {
-    async getStores() {
+    async getPurchases() {
       try {
-        let stores = await this.$services.store.get(
+        let purchases = await this.$services.purchase.get(
           this.$auth.user.companyID._id
         )
 
-        console.log('yenilendi depolar')
-
-        this.stores = stores.data
+        this.purchases = purchases.data
       } catch (error) {
         console.log(error)
       }

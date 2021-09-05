@@ -17,7 +17,7 @@
         </div>
       </card-component>
       <card-component title="Ürün Listesi">
-        <product-list-table :clients="products" />
+        <product-list-table @refreshProduct="getProduct" :clients="products" />
       </card-component>
     </section>
   </div>

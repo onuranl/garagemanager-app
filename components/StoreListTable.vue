@@ -29,16 +29,19 @@
             >
               <b-icon icon="plus-thick" size="is-small" />
             </nuxt-link>
-            <nuxt-link
-              :to="{ name: 'client-id', params: { id: props.row.id } }"
-              class="button is-small is-primary"
-            >
+            <button @click="isActive = true" class="button is-small is-primary">
               <b-icon icon="account-edit" size="is-small" />
-            </nuxt-link>
+            </button>
+            <edit-store
+              v-if="isActive"
+              @isntActive="isActive = false"
+              @refreshStore="getStores"
+              :info="props.row"
+            />
             <button
               class="button is-small is-danger"
               type="button"
-              @click.prevent="trashModal(props.row)"
+              @click="confirmDelete(props.row.name, props.row._id)"
             >
               <b-icon icon="trash-can" size="is-small" />
             </button>
@@ -50,20 +53,53 @@
 </template>
 
 <script>
+import EditStore from './EditStore.vue'
 export default {
+  components: { EditStore },
   props: {
-    clients: [],
+    clients: {
+      type: Array,
+    },
   },
   data() {
     return {
       isModalActive: false,
       trashObject: null,
-      // clients: [],
       isLoading: false,
       paginated: false,
       perPage: 10,
       checkedRows: [],
+      storeID: '',
+      isActive: false,
     }
+  },
+  methods: {
+    confirmDelete(name, id) {
+      this.$buefy.dialog.confirm({
+        title: 'Deleting account',
+        message: `'<b>${name}</b>' isimli depoyu silmek istediğini emin misin ?`,
+        confirmText: 'Delete Account',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.removeStore(id),
+      })
+    },
+    async removeStore(id) {
+      try {
+        let remove = await this.$services.store.remove(id)
+
+        if (remove) {
+          this.$buefy.toast.open('Depo Kaldırıldı !')
+          this.$emit('refreshStores')
+        }
+      } catch (error) {
+        this.$buefy.toast.open('Bir hata meydana geldi !')
+        console.log(error)
+      }
+    },
+    getStores() {
+      this.$emit('refreshStores')
+    },
   },
 }
 </script>

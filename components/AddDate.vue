@@ -1,8 +1,8 @@
 <template>
   <div>
     <section>
-      <card-component title="Servis Detaylarını Ekle..." icon="ballot">
-        <form @submit.prevent="addJob">
+      <card-component title="Randevu Detaylarını Ekle..." icon="ballot">
+        <form @submit.prevent="addDate">
           <div class="columns">
             <div class="column">
               <b-field label="Müşteri İsmi" horizontal>
@@ -151,7 +151,6 @@ export default {
         vehicleID: '',
         date: new Date(),
         description: '',
-        file: [],
         companyID: '',
       },
     }
@@ -189,18 +188,18 @@ export default {
     }
   },
   methods: {
-    async addJob() {
+    async addDate() {
       this.form.companyID = this.$auth.user.companyID._id
       try {
-        let create = await this.$services.job.create(this.form)
+        let create = await this.$services.date.create(this.form)
 
         if (create) {
           this.$buefy.snackbar.open({
-            message: 'Servis başarıyla eklendi',
+            message: 'Randevu başarıyla eklendi',
             queue: false,
             type: 'is-success',
           })
-          this.$emit('refreshJobs')
+          this.$emit('refreshDates')
         }
       } catch (error) {
         this.$buefy.snackbar.open({

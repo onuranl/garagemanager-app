@@ -8,79 +8,94 @@
       </header>
       <section class="modal-card-body py-3">
         <card-component>
-          <div class="columns is-variable">
-            <div class="column">
-              <b-field style="margin-bottom: 10px;" label="İsim" horizontal>
-                <b-input v-model="form.name" name="name" required />
-              </b-field>
-              <b-field style="margin-bottom: 15px;" label="Soyisim" horizontal>
-                <b-input v-model="form.surname" name="name" required />
-              </b-field>
-              <b-field
-                style="margin-bottom: 15px;"
-                label="Cinsiyet"
-                class="has-check"
-                horizontal
-              >
-                <div class="block">
-                  <b-radio
-                    v-model="form.gender"
-                    name="name"
-                    native-value="Erkek"
-                  >
-                    Erkek
-                  </b-radio>
-                  <b-radio
-                    v-model="form.gender"
-                    name="name"
-                    native-value="Kadın"
-                  >
-                    Kadın
-                  </b-radio>
-                </div>
-              </b-field>
-              <b-field label="Not" horizontal>
-                <b-input v-model="form.note" type="textarea" />
-              </b-field>
-            </div>
-            <div class="column">
-              <b-field style="margin-bottom: 10px;" label="Email" horizontal>
-                <b-input
-                  v-model="form.email"
-                  type="email"
-                  name="email"
-                  required
-                />
-              </b-field>
-              <b-field style="margin-bottom: 10px;" label="Telefon" horizontal>
-                <b-input
-                  v-model="form.phone"
-                  type="tel"
-                  name="phone"
-                  expanded
-                />
-              </b-field>
-              <b-field style="margin-bottom: 10px;" label="İl" horizontal>
-                <b-select
-                  v-model="form.province"
-                  placeholder="Müşteriyi seç"
-                  required
+          <form @submit.prevent="addCustomer">
+            <div class="columns is-variable">
+              <div class="column">
+                <b-field style="margin-bottom: 10px;" label="İsim" horizontal>
+                  <b-input v-model="form.name" name="name" required />
+                </b-field>
+                <b-field
+                  style="margin-bottom: 15px;"
+                  label="Soyisim"
+                  horizontal
                 >
-                  <option v-for="(il, index) in data" :key="index" :value="il">
-                    {{ il }}
-                  </option>
-                </b-select>
-              </b-field>
-              <b-field label="Adres" horizontal>
-                <b-input v-model="form.address" type="textarea" required />
-              </b-field>
+                  <b-input v-model="form.surname" name="name" required />
+                </b-field>
+                <b-field
+                  style="margin-bottom: 15px;"
+                  label="Cinsiyet"
+                  class="has-check"
+                  horizontal
+                >
+                  <div class="block">
+                    <b-radio
+                      v-model="form.gender"
+                      name="name"
+                      native-value="Erkek"
+                    >
+                      Erkek
+                    </b-radio>
+                    <b-radio
+                      v-model="form.gender"
+                      name="name"
+                      native-value="Kadın"
+                    >
+                      Kadın
+                    </b-radio>
+                  </div>
+                </b-field>
+                <b-field label="Not" horizontal>
+                  <b-input v-model="form.note" type="textarea" />
+                </b-field>
+              </div>
+              <div class="column">
+                <b-field style="margin-bottom: 10px;" label="Email" horizontal>
+                  <b-input
+                    v-model="form.email"
+                    type="email"
+                    name="email"
+                    required
+                  />
+                </b-field>
+                <b-field
+                  style="margin-bottom: 10px;"
+                  label="Telefon"
+                  horizontal
+                >
+                  <b-input
+                    v-model="form.phone"
+                    type="tel"
+                    name="phone"
+                    expanded
+                    required
+                  />
+                </b-field>
+                <b-field style="margin-bottom: 10px;" label="İl" horizontal>
+                  <b-select
+                    v-model="form.province"
+                    placeholder="Müşteriyi seç"
+                    required
+                  >
+                    <option
+                      v-for="(il, index) in data"
+                      :key="index"
+                      :value="il"
+                    >
+                      {{ il }}
+                    </option>
+                  </b-select>
+                </b-field>
+                <b-field label="Adres" horizontal>
+                  <b-input v-model="form.address" type="textarea" required />
+                </b-field>
+              </div>
             </div>
-          </div>
+            <footer class="modal-card-foot">
+              <b-button label="Ekle" native-type="submit" type="is-primary" />
+            </footer>
+          </form>
         </card-component>
       </section>
-      <footer class="modal-card-foot">
-        <b-button @click="addCustomer" label="Ekle" type="is-primary" />
-      </footer>
     </div>
   </div>
 </template>

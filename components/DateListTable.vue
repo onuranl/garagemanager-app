@@ -2,7 +2,6 @@
   <div>
     <b-table
       :checked-rows.sync="checkedRows"
-      :checkable="checkable"
       :loading="isLoading"
       :paginated="paginated"
       :per-page="perPage"
@@ -21,37 +20,46 @@
         <b-table-column label="Soyisim" field="customerID.surname" sortable>
           {{ props.row.customerID.surname }}
         </b-table-column>
+        <b-table-column label="Araç Model" field="vehicleID.model" sortable>
+          {{ props.row.vehicleID.model }}
+        </b-table-column>
+        <b-table-column label="İş Tipi" field="jobTypeID.name" sortable>
+          {{ props.row.jobTypeID.name }}
+        </b-table-column>
         <b-table-column label="Tarih">
           <small>{{ props.row.date }}</small>
         </b-table-column>
         <b-table-column custom-key="actions" class="is-actions-cell">
           <div class="buttons is-right">
             <button
-              :disabled="props.row.status == true"
               class="button is-small is-info"
               type="button"
-              @click="completeJob(props.row._id)"
+              @click="
+                confirmComplete(
+                  props.row.customerID.name,
+                  props.row.customerID.surname,
+                  props.row._id
+                )
+              "
             >
               <b-icon icon="shield-check" size="is-small" />
             </button>
-            <button
-              :disabled="props.row.status == true"
+            <nuxt-link
               :to="{ name: 'client-id', params: { id: props.row.id } }"
               class="button is-small is-primary"
-              @click="isActive = true"
             >
               <b-icon icon="account-edit" size="is-small" />
-            </button>
-            <!-- <edit-job
-              v-if="isActive"
-              @isntActive="isActive = false"
-              :info="props.row"
-            /> -->
+            </nuxt-link>
             <button
-              :disabled="props.row.status == true"
               class="button is-small is-danger"
               type="button"
-              @click="removeJob(props.row._id)"
+              @click="
+                confirmDelete(
+                  props.row.customerID.name,
+                  props.row.customerID.surname,
+                  props.row._id
+                )
+              "
             >
               <b-icon icon="trash-can" size="is-small" />
             </button>
@@ -63,11 +71,11 @@
 </template>
 
 <script>
-import EditJob from './EditJob.vue'
 export default {
-  components: { EditJob },
   props: {
-    clients: [],
+    clients: {
+      type: Array,
+    },
   },
   data() {
     return {
@@ -78,23 +86,44 @@ export default {
       paginated: false,
       perPage: 10,
       checkedRows: [],
-      isActive: false,
     }
   },
+  computed: {
+    getVehicle() {
+      if (this.clients.vehicleID) {
+        return this.clients
+      }
+    },
+  },
   methods: {
-    async completeJob(jobID) {
+    confirmDelete(name, surname, id) {
+      this.$buefy.dialog.confirm({
+        title: 'Deleting purchase',
+        message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı randevusunu silmek istediğinden emin misin ?`,
+        confirmText: 'Delete Account',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.removeDate(id),
+      })
+    },
+    confirmComplete(name, surname, id) {
+      this.$buefy.dialog.confirm({
+        title: 'Pay',
+        message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı randevusunu tamamlamak istediğinden emin misin ?`,
+        confirmText: 'Ödeme yap',
+        type: 'is-success',
+        hasIcon: true,
+        onConfirm: () => this.completeDate(id),
+      })
+    },
+    async removeDate(dateID) {
       try {
-        let complete = await this.$services.job.complete(jobID)
+        let remove = await this.$services.date.remove(dateID)
 
-        if (complete) {
-          this.$buefy.snackbar.open({
-            message: 'Başarılı bir şekilde muhasebeye gönderildi.',
-            queue: false,
-            type: 'is-success',
-          })
+        if (remove) {
+          this.$buefy.toast.open('Randevu Kaldırıldı !')
+          this.$emit('refreshDates')
         }
-
-        this.$emit('refreshJobs')
       } catch (error) {
         this.$buefy.snackbar.open({
           message: 'Bir hata meydana geldi !',
@@ -104,13 +133,13 @@ export default {
         console.log(error)
       }
     },
-    async removeJob(jobID) {
+    async completeDate(dateID) {
       try {
-        let remove = await this.$services.job.remove(jobID)
+        let complete = await this.$services.date.complete(dateID)
 
-        if (remove) {
-          this.$buefy.toast.open('Servis Kaldırıldı !')
-          this.$emit('refreshJobs')
+        if (complete) {
+          this.$buefy.toast.open('Randevu Tamamlandı !')
+          this.$emit('refreshDates')
         }
       } catch (error) {
         this.$buefy.snackbar.open({

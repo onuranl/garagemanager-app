@@ -96,11 +96,13 @@ export default {
     menuNavBarToggle() {
       this.isMenuNavBarActive = !this.isMenuNavBarActive
     },
-    logout() {
-      this.$buefy.snackbar.open({
-        message: 'Log out clicked',
-        queue: false,
-      })
+    async logout() {
+      try {
+        await this.$auth.logout()
+        this.$router.push('/login')
+      } catch (error) {
+        console.log(error)
+      }
     },
   },
 }

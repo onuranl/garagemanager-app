@@ -22,32 +22,16 @@ export default {
   computed: {
     menu() {
       return [
-        'General',
+        'Genel',
         [
           {
             to: '/',
             icon: 'desktop-mac',
-            label: 'Dashboard',
+            label: 'Genel Görünüm',
           },
         ],
-        'Examples',
+        'Özellikler',
         [
-          {
-            to: '/tables',
-            label: 'Tables',
-            icon: 'table',
-            updateMark: true,
-          },
-          {
-            to: '/forms',
-            label: 'Forms',
-            icon: 'square-edit-outline',
-          },
-          {
-            to: '/profile',
-            label: 'Profile',
-            icon: 'account-circle',
-          },
           {
             to: '/service',
             label: 'Servis',
@@ -59,20 +43,31 @@ export default {
             icon: 'storefront',
           },
           {
-            label: 'Submenus',
-            subLabel: 'Submenus Example',
-            icon: 'view-list',
+            to: '/date',
+            label: 'Randevu',
+            icon: 'calendar-range',
+          },
+          {
+            label: 'Muhasebe',
+            icon: 'bag-personal-outline',
             menu: [
               {
-                href: '#void',
-                label: 'Sub-item One',
+                to: '/purchase',
+                icon: 'receipt',
+                label: 'Alış Faturası',
               },
               {
-                href: '#void',
-                label: 'Sub-item Two',
+                href: '/sell',
+                icon: 'receipt',
+                label: 'Satış Faturası',
               },
             ],
           },
+          // {
+          //   to: '/supplier',
+          //   label: 'Tedarikçi',
+          //   icon: 'human-handsup',
+          // },
         ],
         'About',
         [

@@ -16,7 +16,6 @@
                 <b-input
                   v-model="form.address"
                   type="textarea"
-                  placeholder="Explain how we can help you"
                   maxlength="255"
                   required
                 />
@@ -29,7 +28,6 @@
                 <b-input
                   v-model="form.description"
                   type="textarea"
-                  placeholder="Explain how we can help you"
                   maxlength="255"
                   required
                 />
@@ -48,7 +46,6 @@
         </form>
       </card-component>
     </section>
-    {{ form }}
   </div>
 </template>
 
