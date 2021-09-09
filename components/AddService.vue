@@ -39,13 +39,21 @@
                     :key="index"
                     :value="vehicle._id"
                   >
-                    {{ vehicle.brand }}
+                    {{ vehicle.brand }} - {{ vehicle.model }}
                   </option>
                 </b-select>
-                <b-button @click="isActive2 = true">
+                <b-button
+                  :disabled="!form.customerID"
+                  @click="isActive2 = true"
+                >
                   Araç Ekle
                 </b-button>
-                <add-vehicle v-if="isActive2" @isntActive="isActive2 = false" />
+                <add-vehicle
+                  :customerID="form.customerID"
+                  v-if="isActive2"
+                  @isntActive="isActive2 = false"
+                  @getVehicles="getVehicles"
+                />
               </b-field>
               <b-field
                 label="Açıklama"
@@ -98,13 +106,101 @@
             </div>
           </div>
           <hr />
-          <b-field>
-            <b-field grouped>
-              <div class="control">
-                <b-button native-type="submit" type="is-primary">Ekle</b-button>
-              </div>
-            </b-field>
-          </b-field>
+          <b-table :data="columns">
+            <template slot-scope="props">
+              <b-table-column label="Hizmet / Ürün">
+                <b-autocomplete
+                  v-model="columns[props.index].name"
+                  :data="filteredDataArray"
+                  placeholder="fruit"
+                  field="name"
+                  @select="
+                    (option) => (columns[props.index].productID = option._id)
+                  "
+                >
+                  <template #empty>No results for {{ name }}</template>
+                </b-autocomplete>
+              </b-table-column>
+              <b-table-column label="Miktar">
+                <b-input v-model="columns[props.index].quantity" />
+              </b-table-column>
+              <b-table-column label="Birim Fiyat" class="is-flex">
+                <p class="control">
+                  <span class="select">
+                    <select v-model="currency">
+                      <option>₺</option>
+                      <option>$</option>
+                      <option>£</option>
+                      <option>€</option>
+                    </select>
+                  </span>
+                </p>
+                <b-input v-model="columns[props.index].price" />
+              </b-table-column>
+              <b-table-column label="Vergi / KDV">
+                <b-select v-model="columns[props.index].kdv">
+                  <option
+                    v-for="value in kdvOptions"
+                    :key="value"
+                    :value="value"
+                  >
+                    % {{ value }}
+                  </option>
+                </b-select>
+              </b-table-column>
+              <b-table-column label="Toplam" class="is-flex">
+                <p class="control">
+                  <span class="select">
+                    <select v-model="currency">
+                      <option>₺</option>
+                      <option>$</option>
+                      <option>£</option>
+                      <option>€</option>
+                    </select>
+                  </span>
+                </p>
+                <b-input
+                  disabled
+                  :value="
+                    columns[props.index].quantity * columns[props.index].price +
+                    columns[props.index].quantity *
+                      columns[props.index].price *
+                      (columns[props.index].kdv / 100)
+                  "
+                />
+              </b-table-column>
+              <b-table-column custom-key="actions" class="is-actions-cell">
+                <div class="buttons is-right">
+                  <button
+                    class="button is-small is-danger"
+                    style="margin-top: 5px;"
+                    type="button"
+                    @click="columns.splice(props.index, 1)"
+                  >
+                    <b-icon icon="trash-can" size="is-small" />
+                  </button>
+                </div>
+              </b-table-column>
+            </template>
+          </b-table>
+          <hr />
+          <b-button
+            @click="
+              columns.push({
+                name: '',
+                productID: '',
+                quantity: 0.0,
+                price: 0.0,
+                kdv: 18,
+                total: 0.0,
+              })
+            "
+            label="Yeni Satır Ekle"
+          >
+          </b-button>
+          <div style="float: right; margin-right: 30px;">
+            <b-button @click="addJob">Kaydet</b-button>
+          </div>
         </form>
       </card-component>
     </section>
@@ -141,6 +237,10 @@ export default {
       customers: [],
       vehicles: [],
       jobtypes: [],
+      products: [],
+      name: '',
+      kdvOptions: [0, 8, 18],
+      currency: '₺',
       isLoading: false,
       isActive: false,
       isActive2: false,
@@ -154,11 +254,28 @@ export default {
         file: [],
         companyID: '',
       },
+      columns: [
+        {
+          name: '',
+          productID: '',
+          quantity: 0,
+          price: 0,
+          kdv: 18,
+          total: 0,
+        },
+      ],
     }
   },
   computed: {
-    titleStack() {
-      return ['Admin', 'Forms']
+    filteredDataArray() {
+      return this.products.filter((option) => {
+        return (
+          option.name
+            .toString()
+            .toLowerCase()
+            .indexOf(this.name.toLowerCase()) >= 0
+        )
+      })
     },
   },
   watch: {
@@ -178,11 +295,18 @@ export default {
       )
       let jobtypes = await this.$services.jobtypes.get()
 
+      let products = await this.$services.product.getAll(
+        this.$auth.user.companyID._id
+      )
+
       if (customers) {
         this.customers = customers.data
       }
       if (jobtypes) {
         this.jobtypes = jobtypes.data
+      }
+      if (products) {
+        this.products = products.data
       }
     } catch (error) {
       console.log(error)
@@ -190,9 +314,23 @@ export default {
   },
   methods: {
     async addJob() {
-      this.form.companyID = this.$auth.user.companyID._id
+      this.columns.forEach((element) => {
+        element.total =
+          element.quantity * element.price +
+          element.quantity * element.price * (element.kdv / 100)
+      })
+      var form = {
+        customerID: this.form.customerID,
+        jobTypeID: this.form.jobTypeID,
+        vehicleID: this.form.vehicleID,
+        date: this.form.date,
+        description: this.form.description,
+        products: this.columns,
+        photo: '',
+        companyID: this.$auth.user.companyID._id,
+      }
       try {
-        let create = await this.$services.job.create(this.form)
+        let create = await this.$services.job.create(form)
 
         if (create) {
           this.$buefy.snackbar.open({
@@ -234,11 +372,15 @@ export default {
         console.log(error)
       }
     },
-  },
-  head() {
-    return {
-      title: 'Forms — Admin One Nuxt.js',
-    }
+    async getVehicles(customerID) {
+      try {
+        let vehicles = await this.$services.vehicle.get(customerID)
+        this.vehicles = vehicles.data
+        console.log('emit denemes.')
+      } catch (error) {
+        console.log(error)
+      }
+    },
   },
 }
 </script>

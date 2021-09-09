@@ -2,6 +2,9 @@ export default ({ $axios }) => ({
   get(id) {
     return $axios.get(`/job/get/${id}`)
   },
+  getByID(id) {
+    return $axios.get(`/job/one/${id}`)
+  },
   create(data) {
     return $axios.post('/job/create', data)
   },

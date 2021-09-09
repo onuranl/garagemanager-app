@@ -25,16 +25,19 @@
         </b-table-column>
         <b-table-column custom-key="actions" class="is-actions-cell">
           <div class="buttons is-right">
-            <nuxt-link
-              :to="{ name: 'client-id', params: { id: props.row.id } }"
-              class="button is-small is-primary"
-            >
+            <button @click="isActive = true" class="button is-small is-primary">
               <b-icon icon="account-edit" size="is-small" />
-            </nuxt-link>
+            </button>
+            <edit-product
+              :productID="props.row._id"
+              v-if="isActive"
+              @isntActive="isActive = false"
+              @refreshProduct="getProduct"
+            />
             <button
               class="button is-small is-danger"
               type="button"
-              @click="removeProduct(props.row._id)"
+              @click="confirmDelete(props.row.name, props.row._id)"
             >
               <b-icon icon="trash-can" size="is-small" />
             </button>
@@ -46,7 +49,9 @@
 </template>
 
 <script>
+import EditProduct from './EditProduct.vue'
 export default {
+  components: { EditProduct },
   props: {
     clients: [],
   },
@@ -59,9 +64,20 @@ export default {
       paginated: false,
       perPage: 10,
       checkedRows: [],
+      isActive: false,
     }
   },
   methods: {
+    confirmDelete(name, id) {
+      this.$buefy.dialog.confirm({
+        title: 'Deleting account',
+        message: `'<b>${id}</b>' numaralı '<b>${name}</b>' isimli ürünü silmek istediğinden emin misin ?`,
+        confirmText: 'Delete Account',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.removeProduct(id),
+      })
+    },
     async removeProduct(id) {
       try {
         let remove = await this.$services.product.remove(id)
@@ -74,6 +90,9 @@ export default {
         this.$buefy.toast.open('Bir hata meydana geldi !')
         console.log(error)
       }
+    },
+    getProduct() {
+      this.$emit('refreshProduct')
     },
   },
 }

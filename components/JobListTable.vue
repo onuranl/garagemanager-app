@@ -30,28 +30,36 @@
               :disabled="props.row.status == true"
               class="button is-small is-info"
               type="button"
-              @click="completeJob(props.row._id)"
+              @click="
+                confirmComplete(
+                  props.row.customerID.name,
+                  props.row.customerID.surname,
+                  props.row._id,
+                  props.row
+                )
+              "
             >
               <b-icon icon="shield-check" size="is-small" />
             </button>
-            <button
+            <nuxt-link
               :disabled="props.row.status == true"
-              :to="{ name: 'client-id', params: { id: props.row.id } }"
+              :to="`/service/${props.row._id}`"
               class="button is-small is-primary"
               @click="isActive = true"
             >
               <b-icon icon="account-edit" size="is-small" />
-            </button>
-            <!-- <edit-job
-              v-if="isActive"
-              @isntActive="isActive = false"
-              :info="props.row"
-            /> -->
+            </nuxt-link>
             <button
               :disabled="props.row.status == true"
               class="button is-small is-danger"
               type="button"
-              @click="removeJob(props.row._id)"
+              @click="
+                confirmDelete(
+                  props.row.customerID.name,
+                  props.row.customerID.surname,
+                  props.row._id
+                )
+              "
             >
               <b-icon icon="trash-can" size="is-small" />
             </button>
@@ -82,19 +90,51 @@ export default {
     }
   },
   methods: {
-    async completeJob(jobID) {
+    confirmComplete(name, surname, id, data) {
+      this.$buefy.dialog.confirm({
+        title: 'Deleting account',
+        message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı servisini muhasebeye göndermek istediğinden emin misin ?`,
+        confirmText: 'Gönder',
+        type: 'is-success',
+        hasIcon: true,
+        onConfirm: () => this.completeJob(id, data),
+      })
+    },
+    confirmDelete(name, surname, id) {
+      this.$buefy.dialog.confirm({
+        title: 'Deleting account',
+        message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı servisini silmek istediğinden emin misin ?`,
+        confirmText: 'Delete Account',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => this.removeJob(id),
+      })
+    },
+    async completeJob(jobID, data) {
       try {
         let complete = await this.$services.job.complete(jobID)
 
         if (complete) {
-          this.$buefy.snackbar.open({
-            message: 'Başarılı bir şekilde muhasebeye gönderildi.',
-            queue: false,
-            type: 'is-success',
-          })
-        }
+          try {
+            data.invoiceNo = jobID
+            let sell = await this.$services.sell.create(data)
 
-        this.$emit('refreshJobs')
+            if (sell) {
+              this.$buefy.snackbar.open({
+                message: 'Başarılı bir şekilde muhasebeye gönderildi.',
+                queue: false,
+                type: 'is-success',
+              })
+              this.$emit('refreshJobs')
+            }
+          } catch (error) {
+            this.$buefy.snackbar.open({
+              message: 'Bir hata meydana geldi !',
+              queue: false,
+              type: 'is-danger',
+            })
+          }
+        }
       } catch (error) {
         this.$buefy.snackbar.open({
           message: 'Bir hata meydana geldi !',

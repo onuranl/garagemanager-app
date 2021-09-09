@@ -2,32 +2,36 @@
   <div>
     <b-table
       :checked-rows.sync="checkedRows"
+      :checkable="checkable"
       :loading="isLoading"
       :paginated="paginated"
       :per-page="perPage"
       :striped="true"
       :hoverable="true"
-      default-sort="name"
       :data="clients"
     >
       <template slot-scope="props">
         <b-table-column label="ID" field="_id" sortable>
           {{ props.row._id }}
         </b-table-column>
-        <b-table-column label="İsim" field="customerID.name" sortable>
+        <b-table-column label="Müşteri İsmi" field="customerID.name" sortable>
           {{ props.row.customerID.name }}
         </b-table-column>
-        <b-table-column label="Soyisim" field="customerID.surname" sortable>
+        <b-table-column
+          label="Müşteri Soyismi"
+          field="customerID.surname"
+          sortable
+        >
           {{ props.row.customerID.surname }}
         </b-table-column>
-        <b-table-column label="Araç Model" field="vehicleID.model" sortable>
-          {{ props.row.vehicleID.model }}
+        <b-table-column label="Ürün Adeti" field="products" sortable>
+          {{ props.row.products.length }}
         </b-table-column>
-        <b-table-column label="İş Tipi" field="jobTypeID.name" sortable>
-          {{ props.row.jobTypeID.name }}
+        <b-table-column label="Tarih" field="date" sortable>
+          {{ props.row.date }}
         </b-table-column>
-        <b-table-column label="Tarih">
-          <small>{{ props.row.date }}</small>
+        <b-table-column label="Toplam Fiyat" field="totalPrice" sortable>
+          {{ props.row.totalPrice }}
         </b-table-column>
         <b-table-column custom-key="actions" class="is-actions-cell">
           <div class="buttons is-right">
@@ -36,10 +40,10 @@
               class="button is-small is-info"
               type="button"
               @click="
-                confirmComplete(
+                confirmCollect(
+                  props.row._id,
                   props.row.customerID.name,
-                  props.row.customerID.surname,
-                  props.row._id
+                  props.row.customerID.surname
                 )
               "
             >
@@ -47,22 +51,22 @@
             </button>
             <nuxt-link
               :disabled="props.row.status == true"
-              :to="`/date/${props.row._id}`"
+              :to="`/offer/${props.row._id}`"
               class="button is-small is-primary"
             >
               <b-icon icon="account-edit" size="is-small" />
             </nuxt-link>
             <button
               :disabled="props.row.status == true"
-              class="button is-small is-danger"
-              type="button"
               @click="
                 confirmDelete(
+                  props.row._id,
                   props.row.customerID.name,
-                  props.row.customerID.surname,
-                  props.row._id
+                  props.row.customerID.surname
                 )
               "
+              class="button is-small is-danger"
+              type="button"
             >
               <b-icon icon="trash-can" size="is-small" />
             </button>
@@ -74,11 +78,11 @@
 </template>
 
 <script>
+import EditOffer from './EditOffer.vue'
 export default {
+  components: { EditOffer },
   props: {
-    clients: {
-      type: Array,
-    },
+    clients: [],
   },
   data() {
     return {
@@ -89,67 +93,78 @@ export default {
       paginated: false,
       perPage: 10,
       checkedRows: [],
+      products: [],
+      customers: [],
     }
   },
-  computed: {
-    getVehicle() {
-      if (this.clients.vehicleID) {
-        return this.clients
+  async created() {
+    try {
+      let products = await this.$services.product.getAll(
+        this.$auth.user.companyID._id
+      )
+
+      let customers = await this.$services.customer.getCustomer(
+        this.$auth.user.companyID._id
+      )
+
+      if (products) {
+        this.products = products.data
       }
-    },
+
+      if (customers) {
+        this.customers = customers.data
+      }
+    } catch (error) {
+      console.log(error)
+    }
   },
   methods: {
-    confirmDelete(name, surname, id) {
+    getOffers() {
+      this.$emit('refreshOffers')
+    },
+    confirmDelete(id, name, surname) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting purchase',
-        message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı randevusunu silmek istediğinden emin misin ?`,
+        title: 'Deleting account',
+        message: `'<b>${name}${surname}</b>'nin ${id} numaralı teklifini silmek istediğinden emin misin ?`,
         confirmText: 'Delete Account',
         type: 'is-danger',
         hasIcon: true,
-        onConfirm: () => this.removeDate(id),
+        onConfirm: () => this.remove(id),
       })
     },
-    confirmComplete(name, surname, id) {
+    confirmCollect(id, name, surname) {
       this.$buefy.dialog.confirm({
-        title: 'Pay',
-        message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı randevusunu tamamlamak istediğinden emin misin ?`,
+        title: 'Collect',
+        message: `'<b>${name}${surname}</b>'nin ${id} numaralı teklifini tamamlamak istediğinden emin misin ?`,
         confirmText: 'Tamamla',
         type: 'is-success',
         hasIcon: true,
-        onConfirm: () => this.completeDate(id),
+        onConfirm: () => this.collect(id),
       })
     },
-    async removeDate(dateID) {
+    async remove(id) {
       try {
-        let remove = await this.$services.date.remove(dateID)
+        let remove = await this.$services.offer.remove(id)
 
         if (remove) {
-          this.$buefy.toast.open('Randevu Kaldırıldı !')
-          this.$emit('refreshDates')
+          this.$buefy.toast.open('TEklif Kaldırıldı !')
+          this.getOffers()
         }
       } catch (error) {
-        this.$buefy.snackbar.open({
-          message: 'Bir hata meydana geldi !',
-          queue: false,
-          type: 'is-danger',
-        })
+        this.$buefy.toast.open('Bir hata meydana geldi !')
         console.log(error)
       }
     },
-    async completeDate(dateID) {
+    async collect(id) {
       try {
-        let complete = await this.$services.date.complete(dateID)
+        let collect = await this.$services.offer.complete(id)
 
-        if (complete) {
-          this.$buefy.toast.open('Randevu Tamamlandı !')
-          this.$emit('refreshDates')
+        if (collect.status) {
+          this.$buefy.toast.open('Teklif tamamlandı !')
+          this.getOffers()
         }
       } catch (error) {
-        this.$buefy.snackbar.open({
-          message: 'Bir hata meydana geldi !',
-          queue: false,
-          type: 'is-danger',
-        })
+        this.$buefy.toast.open('Bir hata meydana geldi !')
         console.log(error)
       }
     },

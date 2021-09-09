@@ -1,31 +1,31 @@
 <template>
   <div>
     <section>
-      <card-component title="Alış Faturasını Düzenle" icon="ballot">
+      <card-component title="Teklifi Düzenle" icon="ballot">
         <form>
           <div class="columns">
             <div class="column">
-              <b-field label="Tedarikçi İsmi" horizontal>
+              <b-field label="Müşteri İsmi" horizontal>
                 <b-select
-                  v-model="data.supplierID"
+                  v-model="data.customerID"
                   placeholder="Müşteriyi seç"
                   required
                 >
                   <option
-                    v-for="(supplier, index) in suppliers"
+                    v-for="(customer, index) in customers"
                     :key="index"
-                    :value="supplier._id"
+                    :value="customer._id"
                   >
-                    {{ supplier.name }} {{ supplier.surname }}
+                    {{ customer.name }} {{ customer.surname }}
                   </option>
                 </b-select>
                 <b-button @click="isActive = true">
-                  Tedarikçi Ekle
+                  Müşteri Ekle
                 </b-button>
-                <add-supplier
+                <add-customer
                   v-if="isActive"
                   @isntActive="isActive = false"
-                  @refreshSupplier="getSupplier"
+                  @refreshCustomer="getCustomer"
                 />
               </b-field>
             </div>
@@ -138,7 +138,6 @@
           </div>
         </form>
       </card-component>
-      {{ data }}
     </section>
   </div>
 </template>
@@ -151,7 +150,6 @@ import CheckboxPicker from '@/components/CheckboxPicker'
 import RadioPicker from '@/components/RadioPicker'
 import FilePicker from '@/components/FilePicker'
 import HeroBar from '@/components/HeroBar'
-import AddSupplier from '@/components/AddSupplier.vue'
 
 export default {
   name: 'Forms',
@@ -162,7 +160,6 @@ export default {
     CheckboxPicker,
     CardComponent,
     TitleBar,
-    AddSupplier,
   },
   data() {
     return {
@@ -186,7 +183,7 @@ export default {
       kdvOptions: [0, 8, 18],
       currency: '₺',
       products: [],
-      suppliers: [],
+      customers: [],
       isActive: false,
       data: [],
     }
@@ -215,11 +212,9 @@ export default {
   // },
   async fetch() {
     try {
-      let purchases = await this.$services.purchase.getByID(
-        this.$route.params.id
-      )
+      let offers = await this.$services.offer.getByID(this.$route.params.id)
 
-      this.data = purchases.data
+      this.data = offers.data
     } catch (error) {
       console.log(error)
     }
@@ -230,7 +225,7 @@ export default {
         this.$auth.user.companyID._id
       )
 
-      let suppliers = await this.$services.supplier.get(
+      let customers = await this.$services.customer.getCustomer(
         this.$auth.user.companyID._id
       )
 
@@ -238,8 +233,8 @@ export default {
         this.products = products.data
       }
 
-      if (suppliers) {
-        this.suppliers = suppliers.data
+      if (customers) {
+        this.customers = customers.data
       }
     } catch (error) {
       console.log(error)
@@ -253,22 +248,22 @@ export default {
           element.quantity * element.price * (element.kdv / 100)
       })
       try {
-        let sell = await this.$services.purchase.update(
+        let offer = await this.$services.offer.update(
           this.$route.params.id,
           this.data
         )
 
-        if (sell) {
+        if (offer) {
           this.$buefy.snackbar.open({
-            message: 'Alış Faturası başarıyla güncellendi',
+            message: 'Tekliş başarıyla güncellendi',
             queue: false,
             type: 'is-success',
           })
-          this.$emit('refreshPurchases')
+          this.$emit('refreshOffers')
         }
       } catch (error) {
         this.$buefy.snackbar.open({
-          message: error.response.data.error,
+          message: 'Bir hata meydana geldi !',
           queue: false,
           type: 'is-danger',
         })
@@ -288,27 +283,9 @@ export default {
         console.log(error)
       }
     },
-    async getSupplier() {
-      try {
-        let suppliers = await this.$services.supplier.get(
-          this.$auth.user.companyID._id
-        )
-
-        if (suppliers) {
-          this.suppliers = suppliers.data
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    },
     remove(index) {
       this.data.products.splice(index, 1)
     },
-  },
-  head() {
-    return {
-      title: 'Forms — Admin One Nuxt.js',
-    }
   },
 }
 </script>

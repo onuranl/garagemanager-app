@@ -1,40 +1,103 @@
 <template>
   <div>
     <section>
-      <card-component title="Alış Faturasını Düzenle" icon="ballot">
-        <form>
+      <card-component title="Servis Detaylarını Güncelle..." icon="ballot">
+        <form @submit.prevent="updateJob">
           <div class="columns">
             <div class="column">
-              <b-field label="Tedarikçi İsmi" horizontal>
+              <b-field label="Müşteri İsmi" horizontal>
                 <b-select
-                  v-model="data.supplierID"
+                  v-model="data.customerID"
                   placeholder="Müşteriyi seç"
                   required
                 >
                   <option
-                    v-for="(supplier, index) in suppliers"
+                    v-for="(customer, index) in customers"
                     :key="index"
-                    :value="supplier._id"
+                    :value="customer._id"
                   >
-                    {{ supplier.name }} {{ supplier.surname }}
+                    {{ customer.name }} {{ customer.surname }}
                   </option>
                 </b-select>
                 <b-button @click="isActive = true">
-                  Tedarikçi Ekle
+                  Müşteri Ekle
                 </b-button>
-                <add-supplier
+                <add-customer
                   v-if="isActive"
                   @isntActive="isActive = false"
-                  @refreshSupplier="getSupplier"
+                  @refreshCustomer="getCustomer"
+                />
+              </b-field>
+              <b-field label="Araç İsmi" horizontal>
+                <b-select
+                  v-model="data.vehicleID"
+                  placeholder="Müşterinin aracını seç"
+                  required
+                >
+                  <option
+                    v-for="(vehicle, index) in vehicles"
+                    :key="index"
+                    :value="vehicle._id"
+                  >
+                    {{ vehicle.brand }} - {{ vehicle.model }}
+                  </option>
+                </b-select>
+                <b-button @click="isActive2 = true">
+                  Araç Ekle
+                </b-button>
+                <add-vehicle
+                  :customerID="data.customerID"
+                  v-if="isActive2"
+                  @isntActive="isActive2 = false"
+                  @getVehicles="getVehicles"
+                />
+              </b-field>
+              <b-field
+                label="Açıklama"
+                message="Maksimum 2000 karakter"
+                horizontal
+              >
+                <b-input
+                  v-model="data.description"
+                  type="textarea"
+                  placeholder="Explain how we can help you"
+                  maxlength="255"
+                  required
                 />
               </b-field>
             </div>
             <div class="column">
-              <b-field label="Tarih" style="width: 55%;" horizontal>
+              <b-field label="İş Bölümü" horizontal>
+                <b-select
+                  v-model="data.jobTypeID"
+                  placeholder="Select a department"
+                  required
+                >
+                  <option
+                    v-for="(jobtype, index) in jobtypes"
+                    :key="index"
+                    :value="jobtype._id"
+                  >
+                    {{ jobtype.name }}
+                  </option>
+                </b-select>
+                <b-button @click="isActive3 = true">
+                  İş Bölümü Ekle
+                </b-button>
+                <add-job-type
+                  v-if="isActive3"
+                  @isntActive="isActive3 = false"
+                  @refreshJobTypes="getJobTypes"
+                />
+              </b-field>
+              <b-field label="Tarih" style="width: 55%;">
                 <b-datepicker
                   :first-day-of-week="1"
-                  :placeholder="`${data.date}`"
+                  placeholder="Click to select..."
                 />
+              </b-field>
+              <b-field horizontal>
+                <file-picker v-model="data.file" />
               </b-field>
             </div>
           </div>
@@ -134,11 +197,10 @@
           >
           </b-button>
           <div style="float: right; margin-right: 30px;">
-            <b-button @click="update">Güncelle</b-button>
+            <b-button @click="updateJob">Güncelle</b-button>
           </div>
         </form>
       </card-component>
-      {{ data }}
     </section>
   </div>
 </template>
@@ -151,7 +213,9 @@ import CheckboxPicker from '@/components/CheckboxPicker'
 import RadioPicker from '@/components/RadioPicker'
 import FilePicker from '@/components/FilePicker'
 import HeroBar from '@/components/HeroBar'
-import AddSupplier from '@/components/AddSupplier.vue'
+import AddCustomer from '@/components/AddCustomer.vue'
+import AddVehicle from '@/components/AddVehicle.vue'
+import AddJobType from '@/components/AddJobType.vue'
 
 export default {
   name: 'Forms',
@@ -162,33 +226,70 @@ export default {
     CheckboxPicker,
     CardComponent,
     TitleBar,
-    AddSupplier,
+    AddCustomer,
+    AddVehicle,
+    AddJobType,
   },
   data() {
     return {
+      customers: [],
+      vehicles: [],
+      jobtypes: [],
+      isLoading: false,
+      isActive: false,
+      isActive2: false,
+      isActive3: false,
+      data: [],
       name: '',
-      selected: null,
-      selectOutside: false,
-      customerID: '',
-      invoiceNo: '12321321',
-      date: new Date(),
-      address: 'asdasdasdsaa',
-      columns: [
-        {
-          name: '',
-          productID: '',
-          quantity: 0,
-          price: 0,
-          kdv: 18,
-          total: 0,
-        },
-      ],
       kdvOptions: [0, 8, 18],
       currency: '₺',
       products: [],
-      suppliers: [],
-      isActive: false,
-      data: [],
+    }
+  },
+  watch: {
+    'data.customerID': async function (val) {
+      try {
+        let vehicles = await this.$services.vehicle.get(val)
+        this.vehicles = vehicles.data
+      } catch (error) {
+        console.log(error)
+      }
+    },
+  },
+  async fetch() {
+    try {
+      let service = await this.$services.job.getByID(this.$route.params.id)
+
+      this.data = service.data
+    } catch (error) {
+      console.log(error)
+    }
+  },
+  async created() {
+    try {
+      let customers = await this.$services.customer.getCustomer(
+        this.$auth.user.companyID._id
+      )
+      let jobtypes = await this.$services.jobtypes.get()
+
+      let products = await this.$services.product.getAll(
+        this.$auth.user.companyID._id
+      )
+
+      if (customers) {
+        this.customers = customers.data
+      }
+      if (jobtypes) {
+        this.jobtypes = jobtypes.data
+      }
+
+      if (products) {
+        this.products = products.data
+      }
+
+      console.log(this.$route.params.id)
+    } catch (error) {
+      console.log(error)
     }
   },
   computed: {
@@ -203,68 +304,27 @@ export default {
       })
     },
   },
-  // watch: {
-  //   'form.customerID': async function (val) {
-  //     try {
-  //       let vehicles = await this.$services.vehicle.get(val)
-  //       this.vehicles = vehicles.data
-  //     } catch (error) {
-  //       console.log(error)
-  //     }
-  //   },
-  // },
-  async fetch() {
-    try {
-      let purchases = await this.$services.purchase.getByID(
-        this.$route.params.id
-      )
-
-      this.data = purchases.data
-    } catch (error) {
-      console.log(error)
-    }
-  },
-  async created() {
-    try {
-      let products = await this.$services.product.getAll(
-        this.$auth.user.companyID._id
-      )
-
-      let suppliers = await this.$services.supplier.get(
-        this.$auth.user.companyID._id
-      )
-
-      if (products) {
-        this.products = products.data
-      }
-
-      if (suppliers) {
-        this.suppliers = suppliers.data
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  },
   methods: {
-    async update() {
+    async updateJob() {
       this.data.products.forEach((element) => {
         element.total =
           element.quantity * element.price +
           element.quantity * element.price * (element.kdv / 100)
       })
       try {
-        let sell = await this.$services.purchase.update(
+        let update = await this.$services.job.update(
           this.$route.params.id,
           this.data
         )
 
-        if (sell) {
+        if (update) {
           this.$buefy.snackbar.open({
-            message: 'Alış Faturası başarıyla güncellendi',
+            message: 'Servis başarıyla güncellendi',
             queue: false,
             type: 'is-success',
           })
-          this.$emit('refreshPurchases')
+          this.$emit('refreshJobs')
+          this.$router.push('/service')
         }
       } catch (error) {
         this.$buefy.snackbar.open({
@@ -272,7 +332,6 @@ export default {
           queue: false,
           type: 'is-danger',
         })
-        console.log(error)
       }
     },
     async getCustomer() {
@@ -288,15 +347,22 @@ export default {
         console.log(error)
       }
     },
-    async getSupplier() {
+    async getJobTypes() {
       try {
-        let suppliers = await this.$services.supplier.get(
-          this.$auth.user.companyID._id
-        )
+        let jobtypes = await this.$services.jobtypes.get()
 
-        if (suppliers) {
-          this.suppliers = suppliers.data
+        if (jobtypes) {
+          this.jobtypes = jobtypes.data
         }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getVehicles(customerID) {
+      try {
+        let vehicles = await this.$services.vehicle.get(customerID)
+        this.vehicles = vehicles.data
+        console.log('emit denemes.')
       } catch (error) {
         console.log(error)
       }
@@ -304,11 +370,6 @@ export default {
     remove(index) {
       this.data.products.splice(index, 1)
     },
-  },
-  head() {
-    return {
-      title: 'Forms — Admin One Nuxt.js',
-    }
   },
 }
 </script>

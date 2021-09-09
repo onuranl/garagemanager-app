@@ -8,6 +8,8 @@ import DateService from '~/services/DateService'
 import SupplierService from '~/services/SupplierService'
 import PurchaseService from '~/services/PurchaseService'
 import SellService from '~/services/SellService'
+import RoleService from '~/services/RoleService'
+import OfferService from '~/services/OfferService'
 
 export default (ctx, inject) => {
   inject('services', {
@@ -21,5 +23,7 @@ export default (ctx, inject) => {
     supplier: SupplierService(ctx),
     purchase: PurchaseService(ctx),
     sell: SellService(ctx),
+    offer: OfferService(ctx),
+    role: RoleService(ctx),
   })
 }

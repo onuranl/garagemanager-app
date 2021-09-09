@@ -264,7 +264,7 @@ export default {
         }
       } catch (error) {
         this.$buefy.snackbar.open({
-          message: 'Bir hata meydana geldi !',
+          message: error.response.data.error,
           queue: false,
           type: 'is-danger',
         })

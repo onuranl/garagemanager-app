@@ -27,7 +27,7 @@ export default {
           {
             to: '/',
             icon: 'desktop-mac',
-            label: 'Genel Görünüm',
+            label: 'Genel Bilgiler',
           },
         ],
         'Özellikler',
@@ -63,23 +63,23 @@ export default {
               },
             ],
           },
-          // {
-          //   to: '/supplier',
-          //   label: 'Tedarikçi',
-          //   icon: 'human-handsup',
-          // },
+          {
+            to: '/offer',
+            label: 'Teklif',
+            icon: 'offer',
+          },
         ],
-        'About',
+        'Kullanıcı İşlemleri',
         [
           {
-            href: 'https://admin-one-nuxt.justboil.me',
-            label: 'Premium Demo',
-            icon: 'credit-card',
+            to: '/user/users',
+            icon: 'account',
+            label: 'Kullanıcılar',
           },
           {
-            href: 'https://justboil.me/bulma-admin-template/one-nuxt',
-            label: 'About',
-            icon: 'help-circle',
+            to: '/user/register',
+            icon: 'account-plus',
+            label: 'Hesap Oluştur',
           },
         ],
       ]

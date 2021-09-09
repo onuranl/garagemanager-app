@@ -1,62 +1,62 @@
 <template>
   <div>
     <section>
-      <card-component title="Alış Faturasını Düzenle" icon="ballot">
+      <card-component title="Teklif Detaylarını Ekle..." icon="ballot">
         <form>
           <div class="columns">
             <div class="column">
-              <b-field label="Tedarikçi İsmi" horizontal>
+              <b-field label="Müşteri İsmi" horizontal>
                 <b-select
-                  v-model="data.supplierID"
+                  v-model="customerID"
                   placeholder="Müşteriyi seç"
                   required
                 >
                   <option
-                    v-for="(supplier, index) in suppliers"
+                    v-for="(customer, index) in customers"
                     :key="index"
-                    :value="supplier._id"
+                    :value="customer._id"
                   >
-                    {{ supplier.name }} {{ supplier.surname }}
+                    {{ customer.name }} {{ customer.surname }}
                   </option>
                 </b-select>
                 <b-button @click="isActive = true">
-                  Tedarikçi Ekle
+                  Müşteri Ekle
                 </b-button>
-                <add-supplier
+                <add-customer
                   v-if="isActive"
                   @isntActive="isActive = false"
-                  @refreshSupplier="getSupplier"
+                  @refreshCustomer="getCustomer"
                 />
               </b-field>
             </div>
             <div class="column">
               <b-field label="Tarih" style="width: 55%;" horizontal>
                 <b-datepicker
+                  v-model="date"
                   :first-day-of-week="1"
-                  :placeholder="`${data.date}`"
+                  placeholder="Click to select..."
                 />
               </b-field>
             </div>
           </div>
           <hr />
-          <b-table :data="data.products">
+          <b-table :data="columns">
             <template slot-scope="props">
               <b-table-column label="Hizmet / Ürün">
                 <b-autocomplete
-                  v-model="data.products[props.index].name"
-                  :placeholder="data.products[props.index].name"
+                  v-model="columns[props.index].name"
                   :data="filteredDataArray"
+                  placeholder="fruit"
                   field="name"
                   @select="
-                    (option) =>
-                      (data.products[props.index].productID = option._id)
+                    (option) => (columns[props.index].productID = option._id)
                   "
                 >
                   <template #empty>No results for {{ name }}</template>
                 </b-autocomplete>
               </b-table-column>
               <b-table-column label="Miktar">
-                <b-input v-model="data.products[props.index].quantity" />
+                <b-input v-model="columns[props.index].quantity" />
               </b-table-column>
               <b-table-column label="Birim Fiyat" class="is-flex">
                 <p class="control">
@@ -69,10 +69,10 @@
                     </select>
                   </span>
                 </p>
-                <b-input v-model="data.products[props.index].price" />
+                <b-input v-model="columns[props.index].price" />
               </b-table-column>
               <b-table-column label="Vergi / KDV">
-                <b-select v-model="data.products[props.index].kdv">
+                <b-select v-model="columns[props.index].kdv">
                   <option
                     v-for="value in kdvOptions"
                     :key="value"
@@ -96,11 +96,10 @@
                 <b-input
                   disabled
                   :value="
-                    data.products[props.index].quantity *
-                      data.products[props.index].price +
-                    data.products[props.index].quantity *
-                      data.products[props.index].price *
-                      (data.products[props.index].kdv / 100)
+                    columns[props.index].quantity * columns[props.index].price +
+                    columns[props.index].quantity *
+                      columns[props.index].price *
+                      (columns[props.index].kdv / 100)
                   "
                 />
               </b-table-column>
@@ -110,7 +109,7 @@
                     class="button is-small is-danger"
                     style="margin-top: 5px;"
                     type="button"
-                    @click="remove(props.index)"
+                    @click="columns.splice(props.index, 1)"
                   >
                     <b-icon icon="trash-can" size="is-small" />
                   </button>
@@ -121,7 +120,7 @@
           <hr />
           <b-button
             @click="
-              data.products.push({
+              columns.push({
                 name: '',
                 productID: '',
                 quantity: 0.0,
@@ -134,11 +133,10 @@
           >
           </b-button>
           <div style="float: right; margin-right: 30px;">
-            <b-button @click="update">Güncelle</b-button>
+            <b-button @click="addOffer">Kaydet</b-button>
           </div>
         </form>
       </card-component>
-      {{ data }}
     </section>
   </div>
 </template>
@@ -151,7 +149,10 @@ import CheckboxPicker from '@/components/CheckboxPicker'
 import RadioPicker from '@/components/RadioPicker'
 import FilePicker from '@/components/FilePicker'
 import HeroBar from '@/components/HeroBar'
-import AddSupplier from '@/components/AddSupplier.vue'
+import AddCustomer from './AddCustomer.vue'
+import AddVehicle from './AddVehicle.vue'
+import AddJobType from './AddJobType.vue'
+import AddSupplier from './AddSupplier.vue'
 
 export default {
   name: 'Forms',
@@ -162,6 +163,9 @@ export default {
     CheckboxPicker,
     CardComponent,
     TitleBar,
+    AddCustomer,
+    AddVehicle,
+    AddJobType,
     AddSupplier,
   },
   data() {
@@ -186,9 +190,8 @@ export default {
       kdvOptions: [0, 8, 18],
       currency: '₺',
       products: [],
-      suppliers: [],
+      customers: [],
       isActive: false,
-      data: [],
     }
   },
   computed: {
@@ -213,24 +216,13 @@ export default {
   //     }
   //   },
   // },
-  async fetch() {
-    try {
-      let purchases = await this.$services.purchase.getByID(
-        this.$route.params.id
-      )
-
-      this.data = purchases.data
-    } catch (error) {
-      console.log(error)
-    }
-  },
   async created() {
     try {
       let products = await this.$services.product.getAll(
         this.$auth.user.companyID._id
       )
 
-      let suppliers = await this.$services.supplier.get(
+      let customers = await this.$services.customer.getCustomer(
         this.$auth.user.companyID._id
       )
 
@@ -238,41 +230,45 @@ export default {
         this.products = products.data
       }
 
-      if (suppliers) {
-        this.suppliers = suppliers.data
+      if (customers) {
+        this.customers = customers.data
       }
     } catch (error) {
       console.log(error)
     }
   },
   methods: {
-    async update() {
-      this.data.products.forEach((element) => {
+    async addOffer() {
+      this.columns.forEach((element) => {
         element.total =
           element.quantity * element.price +
           element.quantity * element.price * (element.kdv / 100)
       })
+      var form = {
+        customerID: this.customerID,
+        invoiceNo: this.invoiceNo,
+        date: this.date,
+        address: this.address,
+        products: this.columns,
+        companyID: this.$auth.user.companyID._id,
+      }
       try {
-        let sell = await this.$services.purchase.update(
-          this.$route.params.id,
-          this.data
-        )
+        let offer = await this.$services.offer.create(form)
 
-        if (sell) {
+        if (offer) {
           this.$buefy.snackbar.open({
-            message: 'Alış Faturası başarıyla güncellendi',
+            message: 'Teklif başarıyla eklendi',
             queue: false,
             type: 'is-success',
           })
-          this.$emit('refreshPurchases')
+          this.$emit('refreshOffers')
         }
       } catch (error) {
         this.$buefy.snackbar.open({
-          message: error.response.data.error,
+          message: 'Bir hata meydana geldi !',
           queue: false,
           type: 'is-danger',
         })
-        console.log(error)
       }
     },
     async getCustomer() {
@@ -288,27 +284,6 @@ export default {
         console.log(error)
       }
     },
-    async getSupplier() {
-      try {
-        let suppliers = await this.$services.supplier.get(
-          this.$auth.user.companyID._id
-        )
-
-        if (suppliers) {
-          this.suppliers = suppliers.data
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    remove(index) {
-      this.data.products.splice(index, 1)
-    },
-  },
-  head() {
-    return {
-      title: 'Forms — Admin One Nuxt.js',
-    }
   },
 }
 </script>

@@ -53,20 +53,19 @@
           class="tile is-child"
           type="is-success"
           icon="currency-usd"
-          :number="this.totalSell - this.totalPurchase"
+          :number="(this.totalSell - this.totalPurchase).toFixed(2)"
           suffix=" ₺"
-          label="Kar"
+          label="Kâr"
         />
         <card-widget
           class="tile is-child"
           type="is-success"
           icon="chart-timeline-variant"
-          :number="((this.totalSell - this.totalPurchase) * (100 / this.totalPurchase))"
+          :number="profiteRate.toFixed(2)"
           suffix=" %"
-          label="Kar Oranı"
+          label="Kâr Oranı"
         />
       </tiles>
-
       <card-component
         title="Performance"
         icon="finance"
@@ -83,12 +82,6 @@
           >
           </line-chart>
         </div>
-      </card-component>
-
-      <card-component title="Clients" class="has-table has-mobile-sort-spaced">
-        <clients-table-sample
-          :data-url="`${$router.options.base}data-sources/clients.json`"
-        />
       </card-component>
     </section>
   </div>
@@ -127,6 +120,7 @@ export default {
       suppliers: [],
       totalPurchase: 0,
       totalSell: 0,
+      profiteRate: 0,
     }
   },
   async created() {
@@ -178,6 +172,9 @@ export default {
       if (totalSell) {
         this.totalSell = totalSell.data.total
       }
+
+      this.profiteRate =
+        ((this.totalSell - this.totalPurchase) / this.totalPurchase) * 100
     } catch (error) {
       console.log(error)
     }
