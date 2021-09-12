@@ -101,7 +101,12 @@
                 />
               </b-field>
               <b-field horizontal>
-                <file-picker v-model="form.file" />
+                <input
+                  type="file"
+                  id="file"
+                  ref="file"
+                  v-on:change="handleFileUpload()"
+                />
               </b-field>
             </div>
           </div>
@@ -201,6 +206,7 @@
           <div style="float: right; margin-right: 30px;">
             <b-button @click="addJob">Kaydet</b-button>
           </div>
+          {{ file }} asdasdas
         </form>
       </card-component>
     </section>
@@ -245,13 +251,13 @@ export default {
       isActive: false,
       isActive2: false,
       isActive3: false,
+      file: '',
       form: {
         customerID: '',
         jobTypeID: '',
         vehicleID: '',
         date: new Date(),
         description: '',
-        file: [],
         companyID: '',
       },
       columns: [
@@ -339,6 +345,9 @@ export default {
             type: 'is-success',
           })
           this.$emit('refreshJobs')
+          if (this.file) {
+            this.upload(create.data._id)
+          }
         }
       } catch (error) {
         this.$buefy.snackbar.open({
@@ -347,6 +356,18 @@ export default {
           type: 'is-danger',
         })
       }
+    },
+    async upload(jobID) {
+      let formData = new FormData()
+      formData.append('file', this.file)
+      this.$axios
+        .put(`/job/upload/${jobID}`, formData)
+        .then(function () {
+          console.log('SUCCESS!!')
+        })
+        .catch(function () {
+          console.log('FAILURE!!')
+        })
     },
     async getCustomer() {
       try {
@@ -380,6 +401,9 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    handleFileUpload() {
+      this.file = this.$refs.file.files[0]
     },
   },
 }
