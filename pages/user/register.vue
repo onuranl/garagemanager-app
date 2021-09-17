@@ -89,32 +89,40 @@ export default {
   },
   methods: {
     async createUser() {
-      if (this.form.password == this.confirmpassword) {
-        this.form.companyID = this.$auth.user.companyID._id
-        try {
-          let create = await this.$axios.post('/auth/register', this.form)
-
-          if (create) {
-            this.$buefy.snackbar.open({
-              message: 'Hesap başarıyla oluşturuldu',
-              queue: false,
-              type: 'is-success',
-            })
-          }
-        } catch (error) {
-          this.$buefy.snackbar.open({
-            message: 'Bir hata meydana geldi',
-            queue: false,
-            type: 'is-danger',
-          })
-          console.log(error)
-        }
-      } else {
+      if (this.$auth.user.roleID._id != '61223239eeadc037000374b8') {
         this.$buefy.snackbar.open({
-          message: 'Şifreler eşleşmiyor !',
+          message: 'Sadece yöneticiler bu işlemi yapabilir !',
           queue: false,
           type: 'is-danger',
         })
+      } else {
+        if (this.form.password == this.confirmpassword) {
+          this.form.companyID = this.$auth.user.companyID._id
+          try {
+            let create = await this.$axios.post('/auth/register', this.form)
+
+            if (create) {
+              this.$buefy.snackbar.open({
+                message: 'Hesap başarıyla oluşturuldu',
+                queue: false,
+                type: 'is-success',
+              })
+            }
+          } catch (error) {
+            this.$buefy.snackbar.open({
+              message: error.response.data.error || 'Bir hata meydana geldi',
+              queue: false,
+              type: 'is-danger',
+            })
+            console.log(error)
+          }
+        } else {
+          this.$buefy.snackbar.open({
+            message: 'Şifreler eşleşmiyor !',
+            queue: false,
+            type: 'is-danger',
+          })
+        }
       }
     },
   },

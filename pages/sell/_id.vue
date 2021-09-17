@@ -138,7 +138,6 @@
           </div>
         </form>
       </card-component>
-      {{ data }}
     </section>
   </div>
 </template>
@@ -261,6 +260,7 @@ export default {
             type: 'is-success',
           })
           this.$emit('refreshSells')
+          this.$router.push('/sell')
         }
       } catch (error) {
         this.$buefy.snackbar.open({

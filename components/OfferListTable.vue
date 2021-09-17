@@ -124,9 +124,10 @@ export default {
     },
     confirmDelete(id, name, surname) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting account',
+        title: 'Teklifi Kaldır',
         message: `'<b>${name}${surname}</b>'nin ${id} numaralı teklifini silmek istediğinden emin misin ?`,
-        confirmText: 'Delete Account',
+        confirmText: 'Sil',
+        cancelText: 'İptal Et',
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.remove(id),
@@ -134,9 +135,10 @@ export default {
     },
     confirmCollect(id, name, surname) {
       this.$buefy.dialog.confirm({
-        title: 'Collect',
+        title: 'Teklifi Tamamla',
         message: `'<b>${name}${surname}</b>'nin ${id} numaralı teklifini tamamlamak istediğinden emin misin ?`,
         confirmText: 'Tamamla',
+        cancelText: 'İptal Et',
         type: 'is-success',
         hasIcon: true,
         onConfirm: () => this.collect(id),
@@ -147,7 +149,7 @@ export default {
         let remove = await this.$services.offer.remove(id)
 
         if (remove) {
-          this.$buefy.toast.open('TEklif Kaldırıldı !')
+          this.$buefy.toast.open('Teklif Kaldırıldı !')
           this.getOffers()
         }
       } catch (error) {

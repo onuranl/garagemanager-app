@@ -206,7 +206,6 @@
           <div style="float: right; margin-right: 30px;">
             <b-button @click="addJob">Kaydet</b-button>
           </div>
-          {{ file }} asdasdas
         </form>
       </card-component>
     </section>

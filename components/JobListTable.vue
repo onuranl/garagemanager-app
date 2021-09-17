@@ -92,9 +92,10 @@ export default {
   methods: {
     confirmComplete(name, surname, id, data) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting account',
+        title: 'Muhasebeye Gönder',
         message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı servisini muhasebeye göndermek istediğinden emin misin ?`,
-        confirmText: 'Gönder',
+        confirmText: 'Tamamla',
+        cancelText: 'İptal Et',
         type: 'is-success',
         hasIcon: true,
         onConfirm: () => this.completeJob(id, data),
@@ -102,9 +103,10 @@ export default {
     },
     confirmDelete(name, surname, id) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting account',
+        title: 'Servisi Kaldır',
         message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı servisini silmek istediğinden emin misin ?`,
-        confirmText: 'Delete Account',
+        confirmText: 'Sil',
+        cancelText: 'İptal Et',
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.removeJob(id),

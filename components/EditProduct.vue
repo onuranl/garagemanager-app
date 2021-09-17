@@ -141,6 +141,12 @@
                 >
                   <b-input v-model="data.discountedPrice" />
                 </b-field>
+                <b-field label="Ürünün Resmi" horizontal>
+                  <img
+                    style="width: 100px; height: 100px;"
+                    :src="`${data.photo}`"
+                  />
+                </b-field>
               </div>
             </div>
             <footer class="modal-card-foot">
@@ -154,7 +160,6 @@
         </card-component>
       </section>
     </div>
-    {{ data }}
   </div>
 </template>
 
@@ -170,7 +175,7 @@ export default {
   },
   props: {
     productID: {
-      type: Array,
+      type: String,
     },
   },
   async created() {

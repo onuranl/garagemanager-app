@@ -25,11 +25,14 @@
         </b-table-column>
         <b-table-column custom-key="actions" class="is-actions-cell">
           <div class="buttons is-right">
-            <button @click="isActive = true" class="button is-small is-primary">
+            <button
+              @click="edit(props.row._id)"
+              class="button is-small is-primary"
+            >
               <b-icon icon="account-edit" size="is-small" />
             </button>
             <edit-product
-              :productID="props.row._id"
+              :productID="editedProductID"
               v-if="isActive"
               @isntActive="isActive = false"
               @refreshProduct="getProduct"
@@ -65,14 +68,16 @@ export default {
       perPage: 10,
       checkedRows: [],
       isActive: false,
+      editedProductID: '',
     }
   },
   methods: {
     confirmDelete(name, id) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting account',
-        message: `'<b>${id}</b>' numaralı '<b>${name}</b>' isimli ürünü silmek istediğinden emin misin ?`,
-        confirmText: 'Delete Account',
+        title: 'Ürünü Kaldır',
+        message: `'<b>${id}</b>' numaralı, '<b>${name}</b>' isimli ürünü silmek istediğinden emin misin ?`,
+        confirmText: 'Sil',
+        cancelText: 'İptal Et',
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.removeProduct(id),
@@ -90,6 +95,10 @@ export default {
         this.$buefy.toast.open('Bir hata meydana geldi !')
         console.log(error)
       }
+    },
+    edit(id) {
+      this.editedProductID = id
+      this.isActive = true
     },
     getProduct() {
       this.$emit('refreshProduct')

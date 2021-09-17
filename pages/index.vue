@@ -37,7 +37,7 @@
           class="tile is-child"
           type="is-info"
           icon="cart-outline"
-          :number="this.totalSell"
+          :number="this.totalSell.toFixed(2)"
           suffix=" ₺"
           label="Toplam Satış"
         />
@@ -45,7 +45,7 @@
           class="tile is-child"
           type="is-danger"
           icon="cart-minus"
-          :number="this.totalPurchase"
+          :number="this.totalPurchase.toFixed(2)"
           suffix=" ₺"
           label="Toplam Gider"
         />

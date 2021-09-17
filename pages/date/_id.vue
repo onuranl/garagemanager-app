@@ -108,7 +108,6 @@
           </b-field>
         </form>
       </card-component>
-      {{ data }}
     </section>
   </div>
 </template>

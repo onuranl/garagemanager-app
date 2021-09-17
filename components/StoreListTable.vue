@@ -76,9 +76,10 @@ export default {
   methods: {
     confirmDelete(name, id) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting account',
-        message: `'<b>${name}</b>' isimli depoyu silmek istediğini emin misin ?`,
-        confirmText: 'Delete Account',
+        title: 'Depoyu Kaldır',
+        message: `'<b>${name}</b>' isimli, '<b>${id}</b>' numaralı depoyu silmek istediğinden emin misin ?`,
+        confirmText: 'Sil',
+        cancelText: 'İptal Et',
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.removeStore(id),

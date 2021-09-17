@@ -85,16 +85,24 @@ export default {
       })
     },
     async removeUser(id) {
-      try {
-        let remove = await this.$axios.delete(`/user/remove/${id}`)
+      if (this.$auth.user.roleID._id != '61223239eeadc037000374b8') {
+        this.$buefy.snackbar.open({
+          message: 'Sadece yöneticiler bu işlemi yapabilir !',
+          queue: false,
+          type: 'is-danger',
+        })
+      } else {
+        try {
+          let remove = await this.$axios.delete(`/user/remove/${id}`)
 
-        if (remove) {
-          this.$buefy.toast.open('Kullanıcı Kaldırıldı !')
-          this.$fetch()
+          if (remove) {
+            this.$buefy.toast.open('Kullanıcı Kaldırıldı !')
+            this.$fetch()
+          }
+        } catch (error) {
+          this.$buefy.toast.open('Bir hata meydana geldi !')
+          console.log(error)
         }
-      } catch (error) {
-        this.$buefy.toast.open('Bir hata meydana geldi !')
-        console.log(error)
       }
     },
   },

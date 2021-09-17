@@ -141,6 +141,14 @@
                 >
                   <b-input v-model="discountedPriceInput" />
                 </b-field>
+                <b-field horizontal>
+                  <input
+                    type="file"
+                    id="file"
+                    ref="file"
+                    v-on:change="handleFileUpload()"
+                  />
+                </b-field>
               </div>
             </div>
             <footer class="modal-card-foot">
@@ -174,6 +182,7 @@ export default {
         categoryID: '612742bc0661682d8402f167',
         companyID: '',
       },
+      file: '',
       categoryName: '',
       categories: [],
       isActive: false,
@@ -205,6 +214,9 @@ export default {
             type: 'is-success',
           })
           this.$emit('refreshProduct')
+          if (this.file) {
+            this.upload(product.data._id)
+          }
           this.$emit('isntActive')
         }
       } catch (error) {
@@ -215,6 +227,22 @@ export default {
         })
         console.log(error)
       }
+    },
+    async upload(productID) {
+      let formData = new FormData()
+      formData.append('file', this.file)
+      this.$axios
+        .put(`/product/upload/${productID}`, formData)
+        .then(function () {
+          console.log('SUCCESS!!')
+        })
+        .catch(function () {
+          this.$buefy.snackbar.open({
+            message: 'Dosya yüklenirken bir hata meydana geldi !',
+            queue: false,
+            type: 'is-danger',
+          })
+        })
     },
     async addCategory() {
       try {
@@ -255,6 +283,9 @@ export default {
     },
     close() {
       this.$emit('isntActive')
+    },
+    handleFileUpload() {
+      this.file = this.$refs.file.files[0]
     },
   },
   computed: {

@@ -101,9 +101,10 @@ export default {
   methods: {
     confirmDelete(name, surname, id) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting purchase',
+        title: 'Randevuyu Kaldır',
         message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı randevusunu silmek istediğinden emin misin ?`,
-        confirmText: 'Delete Account',
+        confirmText: 'Sil',
+        cancelText: 'İptal Et',
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.removeDate(id),
@@ -111,9 +112,10 @@ export default {
     },
     confirmComplete(name, surname, id) {
       this.$buefy.dialog.confirm({
-        title: 'Pay',
+        title: 'Randevuyu Tamamla',
         message: `'<b>${name}${surname}</b>' isimli müşterinin '<b>${id}</b>' numaralı randevusunu tamamlamak istediğinden emin misin ?`,
         confirmText: 'Tamamla',
+        cancelText: 'İptal Et',
         type: 'is-success',
         hasIcon: true,
         onConfirm: () => this.completeDate(id),

@@ -96,8 +96,12 @@
                   placeholder="Click to select..."
                 />
               </b-field>
-              <b-field horizontal>
-                <file-picker v-model="data.file" />
+              <b-field label="Servis Dosyası" horizontal>
+                <img
+                  style="width: 100px; height: 100px;"
+                  :src="`${data.photo}`"
+                />
+                <a :href="`${data.photo}`" download="download">PDF</a>
               </b-field>
             </div>
           </div>
@@ -303,6 +307,14 @@ export default {
         )
       })
     },
+    // photo() {
+    //   let result = this.data.photo.toString()
+    //   if (result.slice(-3) == 'pdf') {
+    //     return false
+    //   } else {
+    //     return true
+    //   }
+    // },
   },
   methods: {
     async updateJob() {

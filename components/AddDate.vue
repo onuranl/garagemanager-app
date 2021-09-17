@@ -92,9 +92,6 @@
                   placeholder="Click to select..."
                 />
               </b-field>
-              <b-field horizontal>
-                <file-picker v-model="form.file" />
-              </b-field>
             </div>
           </div>
           <hr />

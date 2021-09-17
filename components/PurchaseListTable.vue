@@ -24,7 +24,7 @@
           {{ props.row.date }}
         </b-table-column>
         <b-table-column label="Toplam Fiyat" field="totalPrice" sortable>
-          {{ props.row.totalPrice }}
+          {{ props.row.totalPrice.toFixed(2) }}
         </b-table-column>
         <b-table-column custom-key="actions" class="is-actions-cell">
           <div class="buttons is-right">
@@ -77,9 +77,10 @@ export default {
   methods: {
     confirmDelete(name, id) {
       this.$buefy.dialog.confirm({
-        title: 'Deleting purchase',
+        title: 'Alış Faturasını Kaldır',
         message: `'<b>${name}</b>' isimli tedarikçinin '<b>${id}</b>' numaralı alış faturasını silmek istediğinden emin misin ?`,
-        confirmText: 'Delete Account',
+        confirmText: 'Sil',
+        cancelText: 'İptal Et',
         type: 'is-danger',
         hasIcon: true,
         onConfirm: () => this.remove(id),
@@ -87,9 +88,10 @@ export default {
     },
     confirmPay(name, id) {
       this.$buefy.dialog.confirm({
-        title: 'Pay',
+        title: 'Alış faturasını öde',
         message: `'<b>${name}</b>' isimli tedarikçinin '<b>${id}</b>' numaralı alış faturasını ödemek istediğinden emin misin ?`,
         confirmText: 'Ödeme yap',
+        cancelText: 'İptal Et',
         type: 'is-success',
         hasIcon: true,
         onConfirm: () => this.pay(id),
