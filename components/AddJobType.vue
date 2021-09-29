@@ -17,25 +17,22 @@
                 <b-field style="margin-bottom: 10px;" label="Süre" horizontal>
                   <b-input v-model="form.time" required />
                 </b-field>
-                <b-field label="Açıklama" message="Maksimum 2000 karakter">
+                <b-field label="Açıklama">
                   <b-input
                     v-model="form.description"
                     type="textarea"
-                    placeholder="Explain how we can help you"
                     maxlength="255"
                   />
                 </b-field>
               </div>
               <div class="column">
                 <b-field style="margin-bottom: 10px;" label="Ücret" horizontal>
-                  <b-input v-model="form.price" required />
+                  <b-input type="number" v-model="form.price" required />
                 </b-field>
-
-                <b-field label="Not" message="Maksimum 2000 karakter">
+                <b-field label="Not">
                   <b-input
                     v-model="form.note"
                     type="textarea"
-                    placeholder="Explain how we can help you"
                     maxlength="255"
                   />
                 </b-field>

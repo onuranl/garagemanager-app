@@ -78,9 +78,7 @@
 </template>
 
 <script>
-import EditOffer from './EditOffer.vue'
 export default {
-  components: { EditOffer },
   props: {
     clients: [],
   },

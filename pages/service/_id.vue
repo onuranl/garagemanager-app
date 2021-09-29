@@ -52,15 +52,10 @@
                   @getVehicles="getVehicles"
                 />
               </b-field>
-              <b-field
-                label="Açıklama"
-                message="Maksimum 2000 karakter"
-                horizontal
-              >
+              <b-field label="Açıklama" horizontal>
                 <b-input
                   v-model="data.description"
                   type="textarea"
-                  placeholder="Explain how we can help you"
                   maxlength="255"
                   required
                 />
@@ -91,12 +86,9 @@
                 />
               </b-field>
               <b-field label="Tarih" style="width: 55%;">
-                <b-datepicker
-                  :first-day-of-week="1"
-                  placeholder="Click to select..."
-                />
+                <input type="date" v-model="data.date" />
               </b-field>
-              <b-field label="Servis Dosyası" horizontal>
+              <b-field v-if="data.photo" label="Servis Dosyası" horizontal>
                 <img
                   style="width: 100px; height: 100px;"
                   :src="`${data.photo}`"
@@ -111,12 +103,16 @@
               <b-table-column label="Hizmet / Ürün">
                 <b-autocomplete
                   v-model="data.products[props.index].name"
-                  :placeholder="data.products[props.index].name"
-                  :data="filteredDataArray"
+                  :data="filteredData || products"
                   field="name"
+                  @typing="filteredDataArray(props.index)"
                   @select="
-                    (option) =>
-                      (data.products[props.index].productID = option._id)
+                    (option) => {
+                      data.products[props.index].productID =
+                        option != null ? option._id : ''
+                      data.products[props.index].price =
+                        option != null ? option.price : 0
+                    }
                   "
                 >
                   <template #empty>No results for {{ name }}</template>
@@ -128,7 +124,7 @@
               <b-table-column label="Birim Fiyat" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -152,7 +148,7 @@
               <b-table-column label="Toplam" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -201,7 +197,7 @@
           >
           </b-button>
           <div style="float: right; margin-right: 30px;">
-            <b-button @click="updateJob">Güncelle</b-button>
+            <b-button native-type="submit">Güncelle</b-button>
           </div>
         </form>
       </card-component>
@@ -210,29 +206,11 @@
 </template>
 
 <script>
-import mapValues from 'lodash/mapValues'
-import TitleBar from '@/components/TitleBar'
 import CardComponent from '@/components/CardComponent'
-import CheckboxPicker from '@/components/CheckboxPicker'
-import RadioPicker from '@/components/RadioPicker'
-import FilePicker from '@/components/FilePicker'
-import HeroBar from '@/components/HeroBar'
-import AddCustomer from '@/components/AddCustomer.vue'
-import AddVehicle from '@/components/AddVehicle.vue'
-import AddJobType from '@/components/AddJobType.vue'
 
 export default {
-  name: 'Forms',
   components: {
-    HeroBar,
-    FilePicker,
-    RadioPicker,
-    CheckboxPicker,
     CardComponent,
-    TitleBar,
-    AddCustomer,
-    AddVehicle,
-    AddJobType,
   },
   data() {
     return {
@@ -248,6 +226,7 @@ export default {
       kdvOptions: [0, 8, 18],
       currency: '₺',
       products: [],
+      filteredData: null,
     }
   },
   watch: {
@@ -295,26 +274,6 @@ export default {
     } catch (error) {
       console.log(error)
     }
-  },
-  computed: {
-    filteredDataArray() {
-      return this.products.filter((option) => {
-        return (
-          option.name
-            .toString()
-            .toLowerCase()
-            .indexOf(this.name.toLowerCase()) >= 0
-        )
-      })
-    },
-    // photo() {
-    //   let result = this.data.photo.toString()
-    //   if (result.slice(-3) == 'pdf') {
-    //     return false
-    //   } else {
-    //     return true
-    //   }
-    // },
   },
   methods: {
     async updateJob() {
@@ -382,8 +341,14 @@ export default {
     remove(index) {
       this.data.products.splice(index, 1)
     },
+    filteredDataArray(index) {
+      let name = this.data.products[index].name
+      this.filteredData = this.products.filter((option) => {
+        return (
+          option.name.toString().toLowerCase().indexOf(name.toLowerCase()) >= 0
+        )
+      })
+    },
   },
 }
 </script>
-
-<style></style>

@@ -33,7 +33,12 @@
                   label="Ürün miktarı"
                   horizontal
                 >
-                  <b-input v-model="form.quantity" name="name" required />
+                  <b-input
+                    type="number"
+                    v-model="form.quantity"
+                    name="name"
+                    required
+                  />
                 </b-field>
                 <b-field label="Kategori" horizontal>
                   <b-select
@@ -91,7 +96,7 @@
                 <b-field style="margin-bottom: 10px;" label="Fiyat" horizontal>
                   <p class="control">
                     <span class="select">
-                      <select v-model="currency">
+                      <select v-model="currency" disabled>
                         <option>₺</option>
                         <option>$</option>
                         <option>£</option>
@@ -100,7 +105,7 @@
                     </span>
                   </p>
                   <p class="control">
-                    <input v-model="priceInput" class="input" type="text" />
+                    <input v-model="form.price" class="input" type="number" />
                   </p>
                 </b-field>
 
@@ -109,7 +114,7 @@
                   label="Kdv Oranı"
                   horizontal
                 >
-                  <b-input v-model="form.kdv" name="name" />
+                  <b-input v-model="form.kdv" name="name" type="number" />
                 </b-field>
                 <b-field
                   style="margin-bottom: 15px;"
@@ -139,7 +144,7 @@
                   label="İndirimli fiyat"
                   horizontal
                 >
-                  <b-input v-model="discountedPriceInput" />
+                  <b-input v-model="form.discountedPrice" type="number" />
                 </b-field>
                 <b-field horizontal>
                   <input
@@ -166,8 +171,6 @@ export default {
   data() {
     return {
       currency: '₺',
-      priceInput: '',
-      discountedPriceInput: '',
       form: {
         name: '',
         stockNo: '',
@@ -201,8 +204,6 @@ export default {
   },
   methods: {
     async addProduct() {
-      this.form.price = this.combine
-      this.form.discountedPrice = this.combineDiscounted
       this.form.companyID = this.$auth.user.companyID._id
       try {
         let product = await this.$services.product.create(this.form)
@@ -286,14 +287,6 @@ export default {
     },
     handleFileUpload() {
       this.file = this.$refs.file.files[0]
-    },
-  },
-  computed: {
-    combine() {
-      return `${this.priceInput}${this.currency}`
-    },
-    combineDiscounted() {
-      return `${this.discountedPriceInput}${this.currency}`
     },
   },
 }

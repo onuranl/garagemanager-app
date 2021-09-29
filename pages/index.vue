@@ -181,11 +181,6 @@ export default {
   },
   mounted() {
     this.fillChartData()
-
-    this.$buefy.snackbar.open({
-      message: 'Welcome back',
-      queue: false,
-    })
   },
   methods: {
     randomChartData(n) {
@@ -219,11 +214,6 @@ export default {
         labels: ['01', '02', '03', '04', '05', '06', '07'],
       }
     },
-  },
-  head() {
-    return {
-      title: 'Dashboard — Admin One Nuxt.js',
-    }
   },
 }
 </script>

@@ -71,9 +71,7 @@
 </template>
 
 <script>
-import EditJob from './EditJob.vue'
 export default {
-  components: { EditJob },
   props: {
     clients: [],
   },

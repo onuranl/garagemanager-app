@@ -32,6 +32,7 @@
             <div class="column">
               <b-field label="Tarih" style="width: 55%;" horizontal>
                 <b-datepicker
+                  v-model="date"
                   :first-day-of-week="1"
                   placeholder="Click to select..."
                 />
@@ -44,23 +45,31 @@
               <b-table-column label="Hizmet / Ürün">
                 <b-autocomplete
                   v-model="columns[props.index].name"
-                  :data="filteredDataArray"
-                  placeholder="fruit"
+                  :data="filteredData || products"
                   field="name"
+                  @typing="filteredDataArray(props.index)"
                   @select="
-                    (option) => (columns[props.index].productID = option._id)
+                    (option) => {
+                      columns[props.index].productID =
+                        option != null ? option._id : ''
+                      columns[props.index].price =
+                        option != null ? option.price : 0
+                    }
                   "
                 >
                   <template #empty>No results for {{ name }}</template>
                 </b-autocomplete>
               </b-table-column>
               <b-table-column label="Miktar">
-                <b-input v-model="columns[props.index].quantity" />
+                <b-input
+                  type="number"
+                  v-model="columns[props.index].quantity"
+                />
               </b-table-column>
               <b-table-column label="Birim Fiyat" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -68,7 +77,7 @@
                     </select>
                   </span>
                 </p>
-                <b-input v-model="columns[props.index].price" />
+                <b-input type="number" v-model="columns[props.index].price" />
               </b-table-column>
               <b-table-column label="Vergi / KDV">
                 <b-select v-model="columns[props.index].kdv">
@@ -84,7 +93,7 @@
               <b-table-column label="Toplam" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -191,18 +200,13 @@ export default {
       products: [],
       suppliers: [],
       isActive: false,
+      filteredData: null,
     }
   },
   computed: {
-    filteredDataArray() {
-      return this.products.filter((option) => {
-        return (
-          option.name
-            .toString()
-            .toLowerCase()
-            .indexOf(this.name.toLowerCase()) >= 0
-        )
-      })
+    getDate() {
+      let date = this.date.toISOString()
+      return date.slice(0, 10)
     },
   },
   // watch: {
@@ -246,7 +250,7 @@ export default {
       var form = {
         supplierID: this.supplierID,
         invoiceNo: this.invoiceNo,
-        date: this.date,
+        date: this.getDate,
         address: this.address,
         products: this.columns,
         companyID: this.$auth.user.companyID._id,
@@ -284,11 +288,14 @@ export default {
         console.log(error)
       }
     },
-  },
-  head() {
-    return {
-      title: 'Forms — Admin One Nuxt.js',
-    }
+    filteredDataArray(index) {
+      let name = this.columns[index].name
+      this.filteredData = this.products.filter((option) => {
+        return (
+          option.name.toString().toLowerCase().indexOf(name.toLowerCase()) >= 0
+        )
+      })
+    },
   },
 }
 </script>

@@ -6,9 +6,9 @@
         <p class="modal-card-title">Araç Ekle</p>
         <button type="button" class="delete" @click="close" />
       </header>
-      <section class="modal-card-body py-3">
-        <card-component>
-          <form @submit.prevent="addVehicle">
+      <form @submit.prevent="addVehicle">
+        <section class="modal-card-body py-3">
+          <card-component>
             <div class="columns is-variable">
               <div class="column">
                 <b-field style="margin-bottom: 10px;" label="Marka" horizontal>
@@ -108,12 +108,12 @@
                 </b-field>
               </div>
             </div>
-          </form>
-        </card-component>
-      </section>
-      <footer class="modal-card-foot">
-        <b-button @click="addVehicle" label="Ekle" type="is-primary" />
-      </footer>
+          </card-component>
+        </section>
+        <footer class="modal-card-foot">
+          <b-button native-type="submit" label="Ekle" type="is-primary" />
+        </footer>
+      </form>
     </div>
   </div>
 </template>

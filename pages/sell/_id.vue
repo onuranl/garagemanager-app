@@ -31,10 +31,7 @@
             </div>
             <div class="column">
               <b-field label="Tarih" style="width: 55%;" horizontal>
-                <b-datepicker
-                  :first-day-of-week="1"
-                  :placeholder="`${data.date}`"
-                />
+                <input type="date" v-model="data.date" />
               </b-field>
             </div>
           </div>
@@ -44,12 +41,16 @@
               <b-table-column label="Hizmet / Ürün">
                 <b-autocomplete
                   v-model="data.products[props.index].name"
-                  :placeholder="data.products[props.index].name"
-                  :data="filteredDataArray"
+                  :data="filteredData || products"
                   field="name"
+                  @typing="filteredDataArray(props.index)"
                   @select="
-                    (option) =>
-                      (data.products[props.index].productID = option._id)
+                    (option) => {
+                      data.products[props.index].productID =
+                        option != null ? option._id : ''
+                      data.products[props.index].price =
+                        option != null ? option.price : 0
+                    }
                   "
                 >
                   <template #empty>No results for {{ name }}</template>
@@ -61,7 +62,7 @@
               <b-table-column label="Birim Fiyat" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -85,7 +86,7 @@
               <b-table-column label="Toplam" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -186,30 +187,9 @@ export default {
       customers: [],
       isActive: false,
       data: [],
+      filteredData: null,
     }
   },
-  computed: {
-    filteredDataArray() {
-      return this.products.filter((option) => {
-        return (
-          option.name
-            .toString()
-            .toLowerCase()
-            .indexOf(this.name.toLowerCase()) >= 0
-        )
-      })
-    },
-  },
-  // watch: {
-  //   'form.customerID': async function (val) {
-  //     try {
-  //       let vehicles = await this.$services.vehicle.get(val)
-  //       this.vehicles = vehicles.data
-  //     } catch (error) {
-  //       console.log(error)
-  //     }
-  //   },
-  // },
   async fetch() {
     try {
       let sells = await this.$services.sell.getByID(this.$route.params.id)
@@ -287,11 +267,14 @@ export default {
     remove(index) {
       this.data.products.splice(index, 1)
     },
-  },
-  head() {
-    return {
-      title: 'Forms — Admin One Nuxt.js',
-    }
+    filteredDataArray(index) {
+      let name = this.data.products[index].name
+      this.filteredData = this.products.filter((option) => {
+        return (
+          option.name.toString().toLowerCase().indexOf(name.toLowerCase()) >= 0
+        )
+      })
+    },
   },
 }
 </script>

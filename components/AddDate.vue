@@ -39,13 +39,21 @@
                     :key="index"
                     :value="vehicle._id"
                   >
-                    {{ vehicle.brand }}
+                    {{ vehicle.brand }} - {{ vehicle.model }}
                   </option>
                 </b-select>
-                <b-button @click="isActive2 = true">
+                <b-button
+                  :disabled="!form.customerID"
+                  @click="isActive2 = true"
+                >
                   Araç Ekle
                 </b-button>
-                <add-vehicle v-if="isActive2" @isntActive="isActive2 = false" />
+                <add-vehicle
+                  :customerID="form.customerID"
+                  v-if="isActive2"
+                  @isntActive="isActive2 = false"
+                  @getVehicles="getVehicles"
+                />
               </b-field>
               <b-field
                 label="Açıklama"
@@ -87,7 +95,7 @@
               </b-field>
               <b-field label="Tarih" style="width: 55%;">
                 <b-datepicker
-                  v-model="form.date"
+                  v-model="date"
                   :first-day-of-week="1"
                   placeholder="Click to select..."
                 />
@@ -109,29 +117,11 @@
 </template>
 
 <script>
-import mapValues from 'lodash/mapValues'
-import TitleBar from '@/components/TitleBar'
 import CardComponent from '@/components/CardComponent'
-import CheckboxPicker from '@/components/CheckboxPicker'
-import RadioPicker from '@/components/RadioPicker'
-import FilePicker from '@/components/FilePicker'
-import HeroBar from '@/components/HeroBar'
-import AddCustomer from './AddCustomer.vue'
-import AddVehicle from './AddVehicle.vue'
-import AddJobType from './AddJobType.vue'
 
 export default {
-  name: 'Forms',
   components: {
-    HeroBar,
-    FilePicker,
-    RadioPicker,
-    CheckboxPicker,
     CardComponent,
-    TitleBar,
-    AddCustomer,
-    AddVehicle,
-    AddJobType,
   },
   data() {
     return {
@@ -146,16 +136,11 @@ export default {
         customerID: '',
         jobTypeID: '',
         vehicleID: '',
-        date: new Date(),
         description: '',
         companyID: '',
       },
+      date: new Date(),
     }
-  },
-  computed: {
-    titleStack() {
-      return ['Admin', 'Forms']
-    },
   },
   watch: {
     'form.customerID': async function (val) {
@@ -184,9 +169,16 @@ export default {
       console.log(error)
     }
   },
+  computed: {
+    getDate() {
+      let date = this.date.toISOString()
+      return date.slice(0, 10)
+    },
+  },
   methods: {
     async addDate() {
       this.form.companyID = this.$auth.user.companyID._id
+      this.form.date = this.getDate
       try {
         let create = await this.$services.date.create(this.form)
 
@@ -231,12 +223,5 @@ export default {
       }
     },
   },
-  head() {
-    return {
-      title: 'Forms — Admin One Nuxt.js',
-    }
-  },
 }
 </script>
-
-<style></style>

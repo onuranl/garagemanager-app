@@ -27,8 +27,9 @@
 import AddProduct from '~/components/AddProduct.vue'
 import CardComponent from '~/components/CardComponent.vue'
 import ProductListTable from '~/components/ProductListTable.vue'
+import EditProduct from '~/components/EditProduct.vue'
 export default {
-  components: { ProductListTable, CardComponent, AddProduct },
+  components: { ProductListTable, CardComponent, AddProduct, EditProduct },
   data() {
     return {
       products: [],

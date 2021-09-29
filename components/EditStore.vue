@@ -14,11 +14,7 @@
                 <b-field label="Depo İsmi" horizontal>
                   <b-input v-model="form.name" maxlength="255" required />
                 </b-field>
-                <b-field
-                  label="Depo Adresi"
-                  message="Maksimum 2000 karakter"
-                  horizontal
-                >
+                <b-field label="Depo Adresi" horizontal>
                   <b-input
                     v-model="form.address"
                     type="textarea"
@@ -28,11 +24,7 @@
                 </b-field>
               </div>
               <div class="column">
-                <b-field
-                  label="Açıklama"
-                  message="Maksimum 2000 karakter"
-                  horizontal
-                >
+                <b-field label="Açıklama" horizontal>
                   <b-input
                     v-model="form.description"
                     type="textarea"

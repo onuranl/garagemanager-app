@@ -73,7 +73,7 @@ export default {
         [
           {
             to: '/user/users',
-            icon: 'account',
+            icon: 'account-group',
             label: 'Kullanıcılar',
           },
           {
@@ -84,13 +84,6 @@ export default {
         ],
       ]
     },
-  },
-  created() {
-    this.$store.commit('user', {
-      name: 'John Doe',
-      email: 'john@example.com',
-      avatar: 'https://avatars.dicebear.com/v2/gridy/John-Doe.svg',
-    })
   },
   mounted() {
     document.documentElement.classList.add('has-aside-left')

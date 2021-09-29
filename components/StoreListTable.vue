@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import EditStore from './EditStore.vue'
+import EditStore from '~/components/EditStore.vue'
 export default {
   components: { EditStore },
   props: {

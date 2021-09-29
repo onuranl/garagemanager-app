@@ -71,6 +71,7 @@ export default {
   plugins: [
     { src: '~/plugins/after-each.js', mode: 'client' },
     '~/plugins/service.js',
+    { src: '~/plugins/vue-datepicker.js', mode: 'client' },
   ],
   /*
    ** Auto import components

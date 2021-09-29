@@ -100,7 +100,7 @@
                     </span>
                   </p>
                   <p class="control">
-                    <input v-model="data.price" class="input" type="text" />
+                    <input v-model="data.price" class="input" type="number" />
                   </p>
                 </b-field>
 
@@ -171,6 +171,7 @@ export default {
       categories: [],
       isActive: false,
       data: [],
+      currency: '₺',
     }
   },
   props: {

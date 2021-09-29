@@ -78,9 +78,7 @@
 </template>
 
 <script>
-import EditSell from './EditSell.vue'
 export default {
-  components: { EditSell },
   props: {
     clients: [],
   },

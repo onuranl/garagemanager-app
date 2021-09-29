@@ -55,15 +55,10 @@
                   @getVehicles="getVehicles"
                 />
               </b-field>
-              <b-field
-                label="Açıklama"
-                message="Maksimum 2000 karakter"
-                horizontal
-              >
+              <b-field label="Açıklama" horizontal>
                 <b-input
                   v-model="form.description"
                   type="textarea"
-                  placeholder="Explain how we can help you"
                   maxlength="255"
                   required
                 />
@@ -95,7 +90,7 @@
               </b-field>
               <b-field label="Tarih" style="width: 55%;">
                 <b-datepicker
-                  v-model="form.date"
+                  v-model="date"
                   :first-day-of-week="1"
                   placeholder="Click to select..."
                 />
@@ -116,23 +111,31 @@
               <b-table-column label="Hizmet / Ürün">
                 <b-autocomplete
                   v-model="columns[props.index].name"
-                  :data="filteredDataArray"
-                  placeholder="fruit"
+                  :data="filteredData || products"
                   field="name"
+                  @typing="filteredDataArray(props.index)"
                   @select="
-                    (option) => (columns[props.index].productID = option._id)
+                    (option) => {
+                      columns[props.index].productID =
+                        option != null ? option._id : ''
+                      columns[props.index].price =
+                        option != null ? option.price : 0
+                    }
                   "
                 >
                   <template #empty>No results for {{ name }}</template>
                 </b-autocomplete>
               </b-table-column>
               <b-table-column label="Miktar">
-                <b-input v-model="columns[props.index].quantity" />
+                <b-input
+                  type="number"
+                  v-model="columns[props.index].quantity"
+                />
               </b-table-column>
               <b-table-column label="Birim Fiyat" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -140,7 +143,7 @@
                     </select>
                   </span>
                 </p>
-                <b-input v-model="columns[props.index].price" />
+                <b-input type="number" v-model="columns[props.index].price" />
               </b-table-column>
               <b-table-column label="Vergi / KDV">
                 <b-select v-model="columns[props.index].kdv">
@@ -156,7 +159,7 @@
               <b-table-column label="Toplam" class="is-flex">
                 <p class="control">
                   <span class="select">
-                    <select v-model="currency">
+                    <select v-model="currency" disabled>
                       <option>₺</option>
                       <option>$</option>
                       <option>£</option>
@@ -204,7 +207,7 @@
           >
           </b-button>
           <div style="float: right; margin-right: 30px;">
-            <b-button @click="addJob">Kaydet</b-button>
+            <b-button native-type="submit">Kaydet</b-button>
           </div>
         </form>
       </card-component>
@@ -213,29 +216,20 @@
 </template>
 
 <script>
-import mapValues from 'lodash/mapValues'
-import TitleBar from '@/components/TitleBar'
 import CardComponent from '@/components/CardComponent'
-import CheckboxPicker from '@/components/CheckboxPicker'
-import RadioPicker from '@/components/RadioPicker'
-import FilePicker from '@/components/FilePicker'
-import HeroBar from '@/components/HeroBar'
 import AddCustomer from './AddCustomer.vue'
 import AddVehicle from './AddVehicle.vue'
 import AddJobType from './AddJobType.vue'
+import AddSupplier from './AddSupplier.vue'
 
 export default {
   name: 'Forms',
   components: {
-    HeroBar,
-    FilePicker,
-    RadioPicker,
-    CheckboxPicker,
     CardComponent,
-    TitleBar,
     AddCustomer,
     AddVehicle,
     AddJobType,
+    AddSupplier,
   },
   data() {
     return {
@@ -255,7 +249,6 @@ export default {
         customerID: '',
         jobTypeID: '',
         vehicleID: '',
-        date: new Date(),
         description: '',
         companyID: '',
       },
@@ -269,18 +262,24 @@ export default {
           total: 0,
         },
       ],
+      date: new Date(),
+      filteredData: null,
     }
   },
   computed: {
-    filteredDataArray() {
-      return this.products.filter((option) => {
-        return (
-          option.name
-            .toString()
-            .toLowerCase()
-            .indexOf(this.name.toLowerCase()) >= 0
-        )
-      })
+    // filteredDataArray() {
+    //   return this.products.filter((option) => {
+    //     return (
+    //       option.name
+    //         .toString()
+    //         .toLowerCase()
+    //         .indexOf(this.name.toLowerCase()) >= 0
+    //     )
+    //   })
+    // },
+    getDate() {
+      let date = this.date.toISOString()
+      return date.slice(0, 10)
     },
   },
   watch: {
@@ -328,7 +327,7 @@ export default {
         customerID: this.form.customerID,
         jobTypeID: this.form.jobTypeID,
         vehicleID: this.form.vehicleID,
-        date: this.form.date,
+        date: this.getDate,
         description: this.form.description,
         products: this.columns,
         photo: '',
@@ -403,6 +402,14 @@ export default {
     },
     handleFileUpload() {
       this.file = this.$refs.file.files[0]
+    },
+    filteredDataArray(index) {
+      let name = this.columns[index].name
+      this.filteredData = this.products.filter((option) => {
+        return (
+          option.name.toString().toLowerCase().indexOf(name.toLowerCase()) >= 0
+        )
+      })
     },
   },
 }

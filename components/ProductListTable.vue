@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import EditProduct from './EditProduct.vue'
+import EditProduct from '~/components/EditProduct.vue'
 export default {
   components: { EditProduct },
   props: {

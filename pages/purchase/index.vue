@@ -9,7 +9,7 @@
           />
         </card-component>
       </b-tab-item>
-      <b-tab-item label="Alış Faturası ekle">
+      <b-tab-item label="Alış Faturası Ekle">
         <add-purchase @refreshPurchases="getPurchases" />
       </b-tab-item>
     </b-tabs>

@@ -86,14 +86,8 @@
                 />
               </b-field>
               <b-field label="Tarih" style="width: 55%;">
-                <b-datepicker
-                  :first-day-of-week="1"
-                  placeholder="Click to select..."
-                />
+                <input type="date" v-model="data.date" />
               </b-field>
-              <!-- <b-field horizontal>
-                <file-picker v-model="form.file" />
-              </b-field> -->
             </div>
           </div>
           <hr />
