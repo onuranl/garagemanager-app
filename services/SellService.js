@@ -8,6 +8,9 @@ export default ({ $axios }) => ({
   getTotal(companyID) {
     return $axios.get(`/sell/total/${companyID}`)
   },
+  getChartData(companyID) {
+    return $axios.get(`/sell/chart/${companyID}`)
+  },
   create(data) {
     return $axios.post('/sell/create', data)
   },

@@ -31,7 +31,6 @@
           label="Tedarikçi Sayısı"
         />
       </tiles>
-
       <tiles>
         <card-widget
           class="tile is-child"
@@ -66,12 +65,7 @@
           label="Kâr Oranı"
         />
       </tiles>
-      <card-component
-        title="Performance"
-        icon="finance"
-        header-icon="reload"
-        @header-icon-click="fillChartData"
-      >
+      <card-component title="Haftanın Satış Grafiği" icon="finance">
         <div v-if="defaultChart.chartData" class="chart-area">
           <line-chart
             ref="bigChart"
@@ -121,6 +115,7 @@ export default {
       totalPurchase: 0,
       totalSell: 0,
       profiteRate: 0,
+      chartData: [],
     }
   },
   async created() {
@@ -149,6 +144,10 @@ export default {
         this.$auth.user.companyID._id
       )
 
+      let chartData = await this.$services.sell.getChartData(
+        this.$auth.user.companyID._id
+      )
+
       if (customers) {
         this.customers = customers.data
       }
@@ -173,26 +172,19 @@ export default {
         this.totalSell = totalSell.data.total
       }
 
+      if (chartData) {
+        console.log(chartData.data)
+        this.fillChartData(chartData.data)
+      }
+
       this.profiteRate =
         ((this.totalSell - this.totalPurchase) / this.totalPurchase) * 100
     } catch (error) {
       console.log(error)
     }
   },
-  mounted() {
-    this.fillChartData()
-  },
   methods: {
-    randomChartData(n) {
-      const data = []
-
-      for (let i = 0; i < n; i++) {
-        data.push(Math.round(Math.random() * 200))
-      }
-
-      return data
-    },
-    fillChartData() {
+    fillChartData(data) {
       this.defaultChart.chartData = {
         datasets: [
           {
@@ -208,7 +200,7 @@ export default {
             pointHoverRadius: 4,
             pointHoverBorderWidth: 15,
             pointRadius: 4,
-            data: this.randomChartData(7),
+            data: data,
           },
         ],
         labels: ['01', '02', '03', '04', '05', '06', '07'],
