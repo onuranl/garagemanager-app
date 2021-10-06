@@ -51,8 +51,7 @@ export default {
       {
         rel: 'stylesheet',
         type: 'text/css',
-        href:
-          'https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css',
+        href: 'https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css',
       },
     ],
   },
@@ -101,7 +100,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: 'http://localhost:8000',
+    baseURL: 'https://garagemanager-api.herokuapp.com',
   },
 
   auth: {
