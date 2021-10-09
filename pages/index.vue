@@ -60,12 +60,12 @@
           class="tile is-child"
           type="is-success"
           icon="chart-timeline-variant"
-          :number="profiteRate.toFixed(2)"
+          :number="profiteRate == Infinity ? '100' : profiteRate.toFixed(2)"
           suffix=" %"
           label="Kâr Oranı"
         />
       </tiles>
-      <card-component title="Haftanın Satış Grafiği" icon="finance">
+      <card-component title="Son 7 Günün Satış Grafiği" icon="finance">
         <div v-if="defaultChart.chartData" class="chart-area">
           <line-chart
             ref="bigChart"
@@ -148,34 +148,19 @@ export default {
         this.$auth.user.companyID._id
       )
 
-      if (customers) {
-        this.customers = customers.data
-      }
+      this.customers = customers.data
 
-      if (products) {
-        this.products = products.data
-      }
+      this.products = products.data
 
-      if (dates) {
-        this.dates = dates.data
-      }
+      this.dates = dates.data
 
-      if (suppliers) {
-        this.suppliers = suppliers.data
-      }
+      this.suppliers = suppliers.data
 
-      if (totalPurchase) {
-        this.totalPurchase = totalPurchase.data.total
-      }
+      this.totalPurchase = totalPurchase.data.total
 
-      if (totalSell) {
-        this.totalSell = totalSell.data.total
-      }
+      this.totalSell = totalSell.data.total
 
-      if (chartData) {
-        console.log(chartData.data)
-        this.fillChartData(chartData.data)
-      }
+      this.fillChartData(chartData.data)
 
       this.profiteRate =
         ((this.totalSell - this.totalPurchase) / this.totalPurchase) * 100

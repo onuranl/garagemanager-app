@@ -39,7 +39,12 @@
               </div>
             </div>
             <footer class="modal-card-foot">
-              <b-button label="Ekle" native-type="submit" type="is-primary" />
+              <b-button
+                label="Ekle"
+                native-type="submit"
+                :disabled="disable"
+                type="is-primary"
+              />
             </footer>
           </form>
         </card-component>
@@ -59,6 +64,7 @@ export default {
         price: '',
         note: '',
       },
+      disable: false,
     }
   },
   methods: {
@@ -66,6 +72,7 @@ export default {
       this.$emit('isntActive')
     },
     async addJobType() {
+      this.disable = true
       try {
         let jobtype = await this.$services.jobtypes.create(this.form)
 
@@ -77,6 +84,7 @@ export default {
           })
           this.$emit('refreshJobTypes')
           this.$emit('isntActive')
+          this.disable = false
         }
       } catch (error) {
         this.$buefy.snackbar.open({

@@ -31,7 +31,12 @@
           <b-field>
             <b-field grouped>
               <div class="control">
-                <b-button native-type="submit" type="is-primary">Ekle</b-button>
+                <b-button
+                  native-type="submit"
+                  :disabled="disable"
+                  type="is-primary"
+                  >Ekle</b-button
+                >
               </div>
             </b-field>
           </b-field>

@@ -141,7 +141,7 @@
           >
           </b-button>
           <div style="float: right; margin-right: 30px;">
-            <b-button @click="addPurchase">Kaydet</b-button>
+            <b-button :disabled="disable" @click="addPurchase">Kaydet</b-button>
           </div>
         </form>
       </card-component>
@@ -195,6 +195,7 @@ export default {
           total: 0,
         },
       ],
+      disable: false,
       kdvOptions: [0, 8, 18],
       currency: '₺',
       products: [],
@@ -242,6 +243,7 @@ export default {
   },
   methods: {
     async addPurchase() {
+      this.disable = true
       this.columns.forEach((element) => {
         element.total =
           element.quantity * element.price +
@@ -265,6 +267,7 @@ export default {
             type: 'is-success',
           })
           this.$emit('refreshPurchases')
+          this.disable = false
         }
       } catch (error) {
         this.$buefy.snackbar.open({

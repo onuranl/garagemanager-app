@@ -111,7 +111,12 @@
           </card-component>
         </section>
         <footer class="modal-card-foot">
-          <b-button native-type="submit" label="Ekle" type="is-primary" />
+          <b-button
+            native-type="submit"
+            :disabled="disable"
+            label="Ekle"
+            type="is-primary"
+          />
         </footer>
       </form>
     </div>
@@ -148,6 +153,7 @@ export default {
       ],
       fuels: ['Dizel', 'Benzin', 'Lpg', 'Elektrik'],
       gears: ['Düz', 'Otomatik', 'Yarı Otomatik'],
+      disable: false,
     }
   },
   props: {
@@ -182,6 +188,7 @@ export default {
       this.$emit('isntActive')
     },
     async addVehicle() {
+      this.disable = true
       try {
         this.form.customerID = this.customerID
         let create = await this.$services.vehicle.create(this.form)
@@ -193,6 +200,7 @@ export default {
             type: 'is-success',
           })
           this.$emit('getVehicles', this.customerID)
+          this.disable = false
           this.close()
         }
       } catch (error) {

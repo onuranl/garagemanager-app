@@ -157,7 +157,12 @@
               </div>
             </div>
             <footer class="modal-card-foot">
-              <b-button label="Ekle" native-type="submit" type="is-primary" />
+              <b-button
+                label="Ekle"
+                native-type="submit"
+                :disabled="disable"
+                type="is-primary"
+              />
             </footer>
           </form>
         </card-component>
@@ -185,6 +190,7 @@ export default {
         categoryID: '612742bc0661682d8402f167',
         companyID: '',
       },
+      disable: false,
       file: '',
       categoryName: '',
       categories: [],
@@ -204,6 +210,7 @@ export default {
   },
   methods: {
     async addProduct() {
+      this.disable = true
       this.form.companyID = this.$auth.user.companyID._id
       try {
         let product = await this.$services.product.create(this.form)
@@ -219,6 +226,7 @@ export default {
             this.upload(product.data._id)
           }
           this.$emit('isntActive')
+          this.disable = false
         }
       } catch (error) {
         this.$buefy.snackbar.open({

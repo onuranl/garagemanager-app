@@ -91,7 +91,12 @@
               </div>
             </div>
             <footer class="modal-card-foot">
-              <b-button label="Ekle" native-type="submit" type="is-primary" />
+              <b-button
+                label="Ekle"
+                native-type="submit"
+                :disabled="disable"
+                type="is-primary"
+              />
             </footer>
           </form>
         </card-component>
@@ -198,10 +203,12 @@ export default {
         note: '',
         companyID: this.$auth.user.companyID,
       },
+      disable: false,
     }
   },
   methods: {
     async addCustomer() {
+      this.disable = true
       try {
         let customer = await this.$services.customer.create(this.form)
 
@@ -213,6 +220,7 @@ export default {
           })
           this.$emit('refreshCustomer')
           this.$emit('isntActive')
+          this.disable = false
         }
       } catch (error) {
         this.$buefy.snackbar.open({

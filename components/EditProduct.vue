@@ -153,6 +153,7 @@
               <b-button
                 label="Güncelle"
                 native-type="submit"
+                :disabled="disable"
                 type="is-primary"
               />
             </footer>

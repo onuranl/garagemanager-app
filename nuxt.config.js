@@ -11,6 +11,9 @@ const routerBase =
     : {}
 
 export default {
+  generate: {
+    fallback: true,
+  },
   /*
    ** Concat router base setting
    */
@@ -19,7 +22,7 @@ export default {
    ** Nuxt rendering mode
    ** See https://nuxtjs.org/api/configuration-mode
    */
-  mode: 'universal',
+  mode: 'spa',
   /*
    ** Nuxt target
    ** See https://nuxtjs.org/api/configuration-target
@@ -51,7 +54,8 @@ export default {
       {
         rel: 'stylesheet',
         type: 'text/css',
-        href: 'https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css',
+        href:
+          'https://cdn.materialdesignicons.com/4.9.95/css/materialdesignicons.min.css',
       },
     ],
   },

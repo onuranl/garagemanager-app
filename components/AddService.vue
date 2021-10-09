@@ -207,7 +207,7 @@
           >
           </b-button>
           <div style="float: right; margin-right: 30px;">
-            <b-button native-type="submit">Kaydet</b-button>
+            <b-button native-type="submit" :disabled="disable">Kaydet</b-button>
           </div>
         </form>
       </card-component>

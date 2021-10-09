@@ -106,7 +106,12 @@
           <b-field>
             <b-field grouped>
               <div class="control">
-                <b-button native-type="submit" type="is-primary">Ekle</b-button>
+                <b-button
+                  native-type="submit"
+                  :disabled="disable"
+                  type="is-primary"
+                  >Ekle</b-button
+                >
               </div>
             </b-field>
           </b-field>
@@ -118,10 +123,18 @@
 
 <script>
 import CardComponent from '@/components/CardComponent'
+import AddCustomer from './AddCustomer.vue'
+import AddVehicle from './AddVehicle.vue'
+import AddJobType from './AddJobType.vue'
+import AddSupplier from './AddSupplier.vue'
 
 export default {
   components: {
     CardComponent,
+    AddCustomer,
+    AddVehicle,
+    AddJobType,
+    AddSupplier,
   },
   data() {
     return {
@@ -139,6 +152,7 @@ export default {
         description: '',
         companyID: '',
       },
+      disable: false,
       date: new Date(),
     }
   },
@@ -177,6 +191,7 @@ export default {
   },
   methods: {
     async addDate() {
+      this.disable = true
       this.form.companyID = this.$auth.user.companyID._id
       this.form.date = this.getDate
       try {
@@ -189,6 +204,7 @@ export default {
             type: 'is-success',
           })
           this.$emit('refreshDates')
+          this.disable = false
         }
       } catch (error) {
         this.$buefy.snackbar.open({

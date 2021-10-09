@@ -42,7 +42,10 @@
           <b-field>
             <b-field grouped>
               <div class="control">
-                <b-button native-type="submit" type="is-primary"
+                <b-button
+                  native-type="submit"
+                  :disabled="disable"
+                  type="is-primary"
                   >Hesap Oluştur</b-button
                 >
               </div>
@@ -76,6 +79,7 @@ export default {
       },
       roles: [],
       confirmpassword: '',
+      disable: false,
     }
   },
   async fetch() {
@@ -89,6 +93,7 @@ export default {
   },
   methods: {
     async createUser() {
+      this.disable = true
       if (this.$auth.user.roleID._id != '61223239eeadc037000374b8') {
         this.$buefy.snackbar.open({
           message: 'Sadece yöneticiler bu işlemi yapabilir !',
@@ -107,6 +112,7 @@ export default {
                 queue: false,
                 type: 'is-success',
               })
+              this.disable = false
             }
           } catch (error) {
             this.$buefy.snackbar.open({
